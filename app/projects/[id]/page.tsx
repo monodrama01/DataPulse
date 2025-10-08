@@ -1,29 +1,15 @@
-"use client"
+// 服务端文件：用于静态导出时预生成路径，并渲染客户端页面
+import ClientProjectPage from "./ClientPage"
+import { mockProjects } from "@/lib/projects"
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Navigation } from "@/components/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { 
-  ArrowLeft, 
-  Download, 
-  ExternalLink, 
-  Calendar, 
-  User, 
-  FileText, 
-  Eye,
-  Share2,
-  Heart,
-  LayoutDashboard,
-  FileSpreadsheet,
-  CheckCircle2
-} from "lucide-react"
-import { Project, mockProjects, getProjectCategory, formatFileSize } from "@/lib/projects"
-import { useTheme } from "@/components/theme-provider"
-import Image from "next/image"
-import Link from "next/link"
+export async function generateStaticParams() {
+  // 预生成所有项目的 id 路径，满足 output: 'export' 的要求
+  return mockProjects.map(p => ({ id: p.id }))
+}
+
+export default function Page({ params }: { params: { id: string } }) {
+  return <ClientProjectPage initialProjectId={params.id} />
+}
 
 // 不同类型项目的详情渲染组件
 function NotebookViewer({ project }: { project: Project }) {
