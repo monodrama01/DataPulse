@@ -1,0 +1,36 @@
+"use client"
+
+import React from "react"
+import { Navigation } from "@/components/navigation"
+import { Home, ArrowUp } from "lucide-react"
+import Link from "next/link"
+import { useTheme } from "@/components/theme-provider"
+
+export default function SQLPage() {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <div className={isDark ? 'min-h-screen bg-gray-900' : 'min-h-screen bg-gray-50'}>
+      <Navigation />
+      
+      <div className={isDark ? 'bg-gray-800 border-gray-700 border-b' : 'bg-white border-gray-200 border-b'}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center h-16 space-x-2">
+            <Link href="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700">
+              <Home size={20} />
+              <span className="font-medium">主页</span>
+            </Link>
+            <span className={isDark ? 'text-gray-600' : 'text-gray-400'}>/</span>
+            <span className={isDark ? 'text-gray-100 font-medium' : 'text-gray-900 font-medium'}>SQL</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h1 className="text-4xl font-bold mb-8">MySQL 知识体系</h1>
+        <p className="text-lg">页面正在重建中...</p>
+      </div>
+    </div>
+  );
+}

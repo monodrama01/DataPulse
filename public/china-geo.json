@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","properties":{"name":"广东"},"geometry":{"type":"Polygon","coordinates":[[[110,20],[116,20],[116,25],[110,25],[110,20]]]}},
+    {"type":"Feature","properties":{"name":"上海"},"geometry":{"type":"Polygon","coordinates":[[[121,30],[122.5,30],[122.5,31.5],[121,31.5],[121,30]]]}},
+    {"type":"Feature","properties":{"name":"北京"},"geometry":{"type":"Polygon","coordinates":[[[116,39.5],[117,39.5],[117,41],[116,41],[116,39.5]]]}},
+    {"type":"Feature","properties":{"name":"浙江"},"geometry":{"type":"Polygon","coordinates":[[[119,28],[122,28],[122,31],[119,31],[119,28]]]}},
+    {"type":"Feature","properties":{"name":"江苏"},"geometry":{"type":"Polygon","coordinates":[[[118,31],[121,31],[121,34],[118,34],[118,31]]]}},
+    {"type":"Feature","properties":{"name":"四川"},"geometry":{"type":"Polygon","coordinates":[[[102,28],[106,28],[106,32],[102,32],[102,28]]]}},
+    {"type":"Feature","properties":{"name":"湖北"},"geometry":{"type":"Polygon","coordinates":[[[112,29],[116,29],[116,32],[112,32],[112,29]]]}},
+    {"type":"Feature","properties":{"name":"河南"},"geometry":{"type":"Polygon","coordinates":[[[111,32],[115,32],[115,35],[111,35],[111,32]]]} }
+  ]
+}
+
+

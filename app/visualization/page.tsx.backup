@@ -1,0 +1,995 @@
+"use client"
+
+import React, { useState, useEffect } from 'react'
+import { Navigation } from "@/components/navigation"
+import { Home, ChevronUp, PieChart, Star, BarChart3, Target, Eye, TrendingUp, CheckCircle, Zap, AlertTriangle } from "lucide-react"
+import Link from "next/link"
+import { useTheme } from "@/components/theme-provider"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import ChartCard from "@/components/ChartCard"
+
+const navItems = [
+  { id: "importance", title: "1. 数据可视化重要性" },
+  { id: "principles", title: "2. 可视化核心原则" },
+  { id: "chart-types", title: "3. 图表类型与应用场景" },
+  { id: "tools", title: "4. 主流工具与实操" },
+  { id: "cases", title: "5. 可视化实战案例" }
+]
+
+export default function VisualizationHome() {
+  const { theme } = useTheme()
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(window.scrollY > 400)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const StarRating = ({ count }: { count: number }) => (
+    <div className="flex gap-0.5">
+      {[...Array(5)].map((_, i) => (
+        <Star key={i} size={14} className={i < count ? "fill-yellow-400 text-yellow-400" : "text-gray-300"} />
+      ))}
+    </div>
+  )
+
+  const textColor = theme === 'dark' ? '#e5e7eb' : '#111827'
+  const subTextColor = theme === 'dark' ? '#9ca3af' : '#6b7280'
+  const axisLineColor = theme === 'dark' ? '#374151' : '#e5e7eb'
+  const baseGrid = { left: 40, right: 20, top: 30, bottom: 40 }
+
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <Navigation />
+
+      <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center h-16 space-x-2">
+            <Link href="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors">
+              <Home size={20} />
+              <span className="font-medium">主页</span>
+            </Link>
+            <span className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}>/</span>
+            <span className={`font-medium ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>数据可视化</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex gap-8">
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className={`sticky top-24 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl border p-4 shadow-lg max-h-[calc(100vh-120px)] overflow-y-auto`}>
+              <h3 className={`text-base font-bold mb-3 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+                📖 页面导航
+              </h3>
+              <nav className="space-y-1 text-sm">
+                {navItems.map((item, idx) => (
+                  <a 
+                    key={item.id} 
+                    href={`#${item.id}`} 
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition-colors ${
+                      idx === 0 ? 'text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30' :
+                      idx === 1 ? 'text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30' :
+                      idx === 2 ? 'text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30' :
+                      idx === 3 ? 'text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30' :
+                      'text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/30'
+                    }`}
+                  >
+                    <span>{['📊', '📐', '📈', '🛠️', '💼'][idx]}</span>
+                    <span>{item.title}</span>
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          <main className="flex-1 min-w-0">
+            <div className="mb-12 text-center">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="p-3 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg">
+                  <PieChart className="h-8 w-8 text-white" />
+                </div>
+                <h1 className={`text-5xl font-black ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+                  数据可视化
+                </h1>
+              </div>
+              <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                将复杂数据转化为直观图表·数据分析必备技能
+              </p>
+            </div>
+
+            {/* 1. 重要性 */}
+            <section id="importance" className="mb-20 scroll-mt-24">
+              <div className={`relative mb-8 p-8 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-gradient-to-br from-purple-900/40 via-gray-800 to-pink-900/40 border-purple-700' : 'bg-gradient-to-br from-purple-50 via-white to-pink-50 border-purple-300'}`}>
+                <div className={`absolute left-0 top-0 w-3 h-full rounded-l-2xl ${theme === 'dark' ? 'bg-gradient-to-b from-purple-500 via-pink-500 to-purple-700' : 'bg-gradient-to-b from-purple-400 via-pink-400 to-purple-600'}`}></div>
+                <div className="pl-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Badge className="bg-purple-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg">PART 01</Badge>
+                    <StarRating count={5} />
+                    <Badge variant="outline" className="text-green-600 border-green-600 font-semibold">必备技能</Badge>
+                  </div>
+                  <h2 className={`text-5xl font-black mb-2 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-purple-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700'}`}>
+                    📊 数据可视化重要性
+                  </h2>
+                  <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    用图表讲故事·让数据会说话·提升决策效率
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                      <CheckCircle className="h-5 w-5" />
+                      提升理解与沟通效率
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                    <p className="mb-2">将枯燥的数字和表格转化为直观的图形，大脑处理速度是文本的6万倍。</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>快速发现数据中的模式、趋势和异常</li>
+                      <li>简化复杂概念，促进团队内部高效沟通</li>
+                      <li>增强报告和演示文稿的说服力</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-400">
+                      <Zap className="h-5 w-5" />
+                      驱动决策与业务增长
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                    <p className="mb-2">可视化是"指标-诊断-行动-复盘"决策闭环的关键环节。</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li>辅助管理层快速洞察业务表现，制定战略</li>
+                      <li>识别潜在问题和增长机会，优化资源配置</li>
+                      <li>支持A/B测试结果分析，验证假设</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* 2. 原则 */}
+            <section id="principles" className="mb-20 scroll-mt-24">
+              <div className={`relative mb-8 p-8 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-gradient-to-br from-blue-900/40 via-gray-800 to-cyan-900/40 border-blue-700' : 'bg-gradient-to-br from-blue-50 via-white to-cyan-50 border-blue-300'}`}>
+                <div className={`absolute left-0 top-0 w-3 h-full rounded-l-2xl ${theme === 'dark' ? 'bg-gradient-to-b from-blue-500 via-cyan-500 to-blue-700' : 'bg-gradient-to-b from-blue-400 via-cyan-400 to-blue-600'}`}></div>
+                <div className="pl-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Badge className="bg-blue-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg">PART 02</Badge>
+                    <StarRating count={4} />
+                    <Badge variant="outline" className="text-blue-600 border-blue-600 font-semibold">核心理念</Badge>
+                  </div>
+                  <h2 className={`text-5xl font-black mb-2 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-700'}`}>
+                    📐 可视化核心原则
+                  </h2>
+                  <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    有效传达信息·避免误导·提升图表质量
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6">
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                      <Eye className="h-5 w-5" />
+                      选对图表：任务匹配
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                    <p className="mb-2">根据数据关系和分析目的选择最合适的图表类型。</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>对比：</strong>柱状图、条形图</li>
+                      <li><strong>趋势：</strong>折线图、面积图</li>
+                      <li><strong>占比：</strong>饼图、环形图、矩形树图</li>
+                      <li><strong>相关：</strong>散点图、气泡图</li>
+                      <li><strong>分布：</strong>直方图、箱线图、密度图</li>
+                      <li><strong>结构：</strong>树图、桑基图</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-teal-600 dark:text-teal-400">
+                      <TrendingUp className="h-5 w-5" />
+                      突出重点：信息聚焦
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                    <p className="mb-2">通过视觉元素引导读者关注最重要的数据点和结论。</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>色彩：</strong>强调色、警示色、中性色合理搭配</li>
+                      <li><strong>粗细：</strong>关键线条、文字加粗</li>
+                      <li><strong>标注：</strong>直接在图上添加数据标签、注释</li>
+                      <li><strong>排序：</strong>按大小、时间或逻辑顺序排列数据</li>
+                      <li><strong>简化：</strong>移除不必要的网格线、边框、背景</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                      <AlertTriangle className="h-5 w-5" />
+                      保持一致：规范统一
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm`}>
+                    <p className="mb-2">在整个报告或仪表板中保持视觉元素和交互行为的统一性。</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>色板：</strong>统一的品牌色、分类色、警示色</li>
+                      <li><strong>字号：</strong>标题、轴标签、数据标签字号一致</li>
+                      <li><strong>间距：</strong>图表间、元素间保持合理间距</li>
+                      <li><strong>轴刻度：</strong>相同指标的轴刻度、单位保持一致</li>
+                      <li><strong>交互：</strong>筛选器、下钻、联动行为统一</li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* 3. 图表类型 */}
+            <section id="chart-types" className="mb-20 scroll-mt-24">
+              <div className={`relative mb-8 p-8 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-gradient-to-br from-green-900/40 via-gray-800 to-emerald-900/40 border-green-700' : 'bg-gradient-to-br from-green-50 via-white to-emerald-50 border-green-300'}`}>
+                <div className={`absolute left-0 top-0 w-3 h-full rounded-l-2xl ${theme === 'dark' ? 'bg-gradient-to-b from-green-500 via-emerald-500 to-green-700' : 'bg-gradient-to-b from-green-400 via-emerald-400 to-green-600'}`}></div>
+                <div className="pl-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Badge className="bg-green-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg">PART 03</Badge>
+                    <StarRating count={5} />
+                    <Badge variant="outline" className="text-green-600 border-green-600 font-semibold">核心图表</Badge>
+                  </div>
+                  <h2 className={`text-5xl font-black mb-2 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-emerald-400 to-green-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-green-600 via-emerald-600 to-green-700'}`}>
+                    📈 图表类型与应用场景
+                  </h2>
+                  <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    精选常用图表·掌握数据表达的艺术
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-12">
+                {/* 基础图表 */}
+                <div>
+                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <BarChart3 className="h-6 w-6 text-green-600" />
+                    基础图表类型
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* 柱状图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="柱状图（对比）" 
+                          option={{ 
+                            color:['#60a5fa'], 
+                            tooltip:{trigger:'axis', axisPointer:{type:'shadow'}}, 
+                            grid:baseGrid, 
+                            xAxis:{
+                              type:'category', 
+                              data:['华北','华东','华南','西南','东北'], 
+                              axisLine:{lineStyle:{color:axisLineColor}}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            yAxis:{
+                              type:'value', 
+                              axisLine:{lineStyle:{color:axisLineColor}}, 
+                              splitLine:{lineStyle:{color:axisLineColor}}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            series:[{
+                              type:'bar', 
+                              data:[820,932,901,934,1290], 
+                              barMaxWidth:28, 
+                              itemStyle:{borderRadius:[4,4,0,0]}
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-blue-600 text-lg">📊 柱状图 - 数据对比利器</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>类别对比、排名、时间段对比</p>
+                          <p className="text-sm"><strong>优势：</strong>直观清晰，适合并列对比多个维度的数据</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-blue-900/20':'bg-blue-50'}`}>
+                            <p className="font-semibold mb-2">各工具实现：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>Excel:</strong> 插入→图表→柱形图，右键设置数据系列格式调整间距</li>
+                              <li>• <strong>Power BI:</strong> 拖拽字段至坐标轴和值，格式设置调整颜色</li>
+                              <li>• <strong>Python:</strong> plt.bar(x, y) 或 sns.barplot(data)</li>
+                              <li>• <strong>ECharts:</strong> type: &apos;bar&apos;，itemStyle控制样式</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：柱子不宜超过12个，避免拥挤；排序优化可读性</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 折线图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="折线图（趋势）" 
+                          option={{ 
+                            color:['#34d399'], 
+                            tooltip:{trigger:'axis'}, 
+                            grid:baseGrid, 
+                            xAxis:{
+                              type:'category', 
+                              data:Array.from({length:12},(_,i)=>`${i+1}月`), 
+                              axisLine:{lineStyle:{color:axisLineColor}}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            yAxis:{
+                              type:'value', 
+                              axisLine:{lineStyle:{color:axisLineColor}}, 
+                              splitLine:{lineStyle:{color:axisLineColor}}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            series:[{
+                              type:'line', 
+                              smooth:true, 
+                              data:[120,132,101,134,90,230,210,260,200,220,240,280], 
+                              areaStyle:{opacity:0.08}
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-green-600 text-lg">📈 折线图 - 趋势分析首选</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>时间序列、趋势变化、连续数据</p>
+                          <p className="text-sm"><strong>优势：</strong>清晰展示数据走势，便于发现周期性和拐点</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-green-900/20':'bg-green-50'}`}>
+                            <p className="font-semibold mb-2">各工具实现：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>Excel:</strong> 插入→折线图，设计选项卡添加平滑线</li>
+                              <li>• <strong>Tableau:</strong> 拖拽日期至列、度量至行，自动生成趋势线</li>
+                              <li>• <strong>Matplotlib:</strong> plt.plot(x, y), plt.fill_between()填充面积</li>
+                              <li>• <strong>Seaborn:</strong> sns.lineplot(data=df, x=&apos;date&apos;, y=&apos;value&apos;)</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：多条折线不超过5条；标注关键拐点提升可读性</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 饼图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="饼图（占比）" 
+                          option={{ 
+                            tooltip:{trigger:'item'}, 
+                            legend:{bottom:0, textStyle:{color:subTextColor}}, 
+                            series:[{
+                              type:'pie', 
+                              radius:['40%','65%'], 
+                              center:['50%','45%'], 
+                              itemStyle:{
+                                borderRadius:6, 
+                                borderColor:theme==='dark'?'#111827':'#fff', 
+                                borderWidth:2
+                              }, 
+                              data:[
+                                {value:35,name:'A类'},
+                                {value:25,name:'B类'},
+                                {value:18,name:'C类'},
+                                {value:12,name:'D类'},
+                                {value:10,name:'E类'}
+                              ]
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-purple-600 text-lg">🥧 饼图 - 占比可视化</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>结构占比、份额分析、分类汇总</p>
+                          <p className="text-sm"><strong>优势：</strong>直观展示整体与部分的关系</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-purple-900/20':'bg-purple-50'}`}>
+                            <p className="font-semibold mb-2">各工具实现：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>Excel:</strong> 插入→饼图/环形图，数据标签显示百分比</li>
+                              <li>• <strong>Power BI:</strong> 饼图/环形图视觉对象，细节设置显示图例</li>
+                              <li>• <strong>Matplotlib:</strong> plt.pie(sizes, labels=labels, autopct=&apos;%1.1f%%&apos;)</li>
+                              <li>• <strong>ECharts:</strong> type:&apos;pie&apos;, radius设置环形图半径</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：分类不超过7个；小于5%的合并为"其他"；按大小排序</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 散点图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="散点图（相关性）" 
+                          option={{ 
+                            tooltip:{trigger:'item'}, 
+                            grid:baseGrid, 
+                            xAxis:{
+                              name:'广告投入', 
+                              axisLine:{lineStyle:{color:axisLineColor}}, 
+                              splitLine:{lineStyle:{color:axisLineColor}}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            yAxis:{
+                              name:'销售额', 
+                              axisLine:{lineStyle:{color:axisLineColor}}, 
+                              splitLine:{lineStyle:{color:axisLineColor}}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            series:[{
+                              type:'scatter', 
+                              symbolSize:10, 
+                              data:[[10,20],[20,40],[30,60],[40,58],[50,90],[60,110]]
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-red-600 text-lg">🔴 散点图 - 相关性分析</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>两变量关系、相关性分析、离群点检测</p>
+                          <p className="text-sm"><strong>优势：</strong>直观展示变量间的正/负相关或无关系</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-red-900/20':'bg-red-50'}`}>
+                            <p className="font-semibold mb-2">各工具实现：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>Excel:</strong> 插入→散点图，添加趋势线查看相关性</li>
+                              <li>• <strong>Tableau:</strong> 双轴拖拽，分析→趋势线添加回归线</li>
+                              <li>• <strong>Seaborn:</strong> sns.scatterplot() 或 sns.regplot()带回归线</li>
+                              <li>• <strong>ECharts:</strong> type:&apos;scatter&apos;，visualMap映射颜色深浅</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：数据量大时用透明度避免重叠；添加趋势线增强洞察</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                {/* 高级图表 */}
+                <div>
+                  <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                    <Target className="h-6 w-6 text-purple-600" />
+                    高级分析图表
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* 漏斗图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="漏斗图（转化）" 
+                          option={{ 
+                            tooltip:{trigger:'item', formatter:'{b}: {c}%'}, 
+                            series:[{
+                              type:'funnel', 
+                              left:'10%', 
+                              width:'80%', 
+                              label:{color:subTextColor}, 
+                              data:[
+                                {value:100,name:'浏览'},
+                                {value:70,name:'加购'},
+                                {value:45,name:'下单'},
+                                {value:30,name:'支付'},
+                                {value:28,name:'签收'}
+                              ]
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-purple-600 text-lg">🔻 漏斗图 - 流程转化分析</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>转化率分析、流程优化、销售漏斗</p>
+                          <p className="text-sm"><strong>优势：</strong>清晰展示各环节流失情况，快速定位瓶颈</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-purple-900/20':'bg-purple-50'}`}>
+                            <p className="font-semibold mb-2">典型应用：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>电商转化：</strong>浏览→加购→下单→支付→签收</li>
+                              <li>• <strong>销售漏斗：</strong>线索→商机→报价→成交</li>
+                              <li>• <strong>用户注册：</strong>访问→注册→验证→完善资料→激活</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：各阶段按转化顺序排列；标注转化率百分比</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 热力图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="热力图（密度）" 
+                          option={{ 
+                            tooltip:{}, 
+                            grid:{left:50, right:20, top:20, bottom:60}, 
+                            xAxis:{
+                              type:'category', 
+                              data:['0','4','8','12','16','20'], 
+                              splitArea:{show:true}, 
+                              axisLabel:{color:subTextColor, fontSize:10}
+                            }, 
+                            yAxis:{
+                              type:'category', 
+                              data:['周日','周六','周五','周四','周三','周二','周一'], 
+                              splitArea:{show:true}, 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            visualMap:{
+                              min:0, 
+                              max:120, 
+                              calculable:true, 
+                              orient:'horizontal', 
+                              left:'center', 
+                              bottom:0, 
+                              textStyle:{color:subTextColor, fontSize:10}
+                            }, 
+                            series:[{
+                              name:'访问量', 
+                              type:'heatmap', 
+                              data:Array.from({length:42},(_,k)=>[k%6, Math.floor(k/6), Math.floor(Math.random()*120)]), 
+                              emphasis:{itemStyle:{shadowBlur:10, shadowColor:'rgba(0,0,0,0.5)'}}
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-orange-600 text-lg">🔥 热力图 - 密度可视化</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>时间分布、地理热力、行为密度</p>
+                          <p className="text-sm"><strong>优势：</strong>颜色深浅直观展示数据集中度</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-orange-900/20':'bg-orange-50'}`}>
+                            <p className="font-semibold mb-2">典型应用：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>时间热力：</strong>周×小时访问量分布，优化推送时间</li>
+                              <li>• <strong>地理热力：</strong>门店销售地图，选址决策支持</li>
+                              <li>• <strong>网站热力：</strong>页面点击分布，优化UI布局</li>
+                              <li>• <strong>相关性矩阵：</strong>变量间相关系数可视化</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：颜色梯度要清晰；添加图例说明数值范围</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 甘特图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="甘特图（项目进度）" 
+                          option={{ 
+                            tooltip:{
+                              formatter: function(params: any) {
+                                return params.marker + params.name + ': ' + params.value[3] + '天'
+                              }
+                            },
+                            grid:{left:100, right:20, top:20, bottom:40}, 
+                            xAxis:{
+                              type:'time',
+                              axisLabel:{color:subTextColor, fontSize:10},
+                              splitLine:{lineStyle:{color:axisLineColor}}
+                            }, 
+                            yAxis:{
+                              type:'category', 
+                              data:['需求分析','UI设计','前端开发','后端开发','测试','上线'], 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            series:[{
+                              type:'custom',
+                              renderItem: function(params: any, api: any) {
+                                const categoryIndex = api.value(0)
+                                const start = api.coord([api.value(1), categoryIndex])
+                                const end = api.coord([api.value(2), categoryIndex])
+                                const height = api.size([0, 1])[1] * 0.6
+                                const colors = ['#60a5fa','#34d399','#f59e0b','#ec4899','#8b5cf6','#10b981']
+                                
+                                return {
+                                  type: 'rect',
+                                  shape: {
+                                    x: start[0],
+                                    y: start[1] - height / 2,
+                                    width: end[0] - start[0],
+                                    height: height
+                                  },
+                                  style: {
+                                    fill: colors[categoryIndex],
+                                    opacity: 0.8
+                                  }
+                                }
+                              },
+                              encode: {
+                                x: [1, 2],
+                                y: 0
+                              },
+                              data: [
+                                [0, new Date('2024-01-01').getTime(), new Date('2024-01-10').getTime(), 10, '需求分析'],
+                                [1, new Date('2024-01-08').getTime(), new Date('2024-01-20').getTime(), 12, 'UI设计'],
+                                [2, new Date('2024-01-18').getTime(), new Date('2024-02-15').getTime(), 28, '前端开发'],
+                                [3, new Date('2024-01-22').getTime(), new Date('2024-02-20').getTime(), 30, '后端开发'],
+                                [4, new Date('2024-02-16').getTime(), new Date('2024-02-28').getTime(), 12, '测试'],
+                                [5, new Date('2024-02-28').getTime(), new Date('2024-03-01').getTime(), 2, '上线']
+                              ].map((item: any) => ({
+                                value: item,
+                                name: item[4],
+                                itemStyle: {borderRadius: 4}
+                              }))
+                            }] 
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-indigo-600 text-lg">📅 甘特图 - 项目时间管理</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>项目进度管理、任务排期、资源分配</p>
+                          <p className="text-sm"><strong>优势：</strong>可视化任务时间线、依赖关系和并行作业</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-indigo-900/20':'bg-indigo-50'}`}>
+                            <p className="font-semibold mb-2">各工具实现：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>Excel:</strong> 使用堆积条形图模拟，设置任务开始时间和持续时间</li>
+                              <li>• <strong>Power BI:</strong> 使用自定义视觉对象 Gantt Chart</li>
+                              <li>• <strong>Tableau:</strong> 甘特图视图，日期维度+持续时间度量</li>
+                              <li>• <strong>ECharts:</strong> 使用 custom 系列自定义渲染</li>
+                            </ul>
+                            <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：标注关键路径和里程碑；颜色区分任务类型或责任人</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* 标靶图 */}
+                    <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                      <CardContent className="pt-6 space-y-4">
+                        <ChartCard 
+                          title="标靶图（KPI对比）" 
+                          option={{ 
+                            tooltip:{
+                              trigger:'item',
+                              formatter: function(params: any) {
+                                if(params.seriesName === '目标') return '目标: ' + params.value
+                                if(params.seriesName === '实际') return '实际: ' + params.value
+                                return params.name + ': ' + params.value
+                              }
+                            },
+                            grid:{left:120, right:40, top:20, bottom:40}, 
+                            xAxis:{
+                              type:'value',
+                              max:120,
+                              axisLabel:{color:subTextColor},
+                              splitLine:{lineStyle:{color:axisLineColor}}
+                            }, 
+                            yAxis:{
+                              type:'category', 
+                              data:['Q4销售额','客户满意度','新用户增长','产品质量'], 
+                              axisLabel:{color:subTextColor}
+                            }, 
+                            series:[
+                              {
+                                name:'优秀',
+                                type:'bar',
+                                stack:'total',
+                                itemStyle:{color:'#dcfce7'},
+                                data:[40,40,40,40],
+                                barWidth:20
+                              },
+                              {
+                                name:'良好',
+                                type:'bar',
+                                stack:'total',
+                                itemStyle:{color:'#fed7aa'},
+                                data:[30,30,30,30]
+                              },
+                              {
+                                name:'及格',
+                                type:'bar',
+                                stack:'total',
+                                itemStyle:{color:'#fecaca'},
+                                data:[30,30,30,30]
+                              },
+                              {
+                                name:'实际',
+                                type:'bar',
+                                itemStyle:{color:'#3b82f6'},
+                                data:[85,72,68,95],
+                                barWidth:8,
+                                z:10
+                              },
+                              {
+                                name:'目标',
+                                type:'scatter',
+                                itemStyle:{color:'#ef4444', borderColor:'#991b1b', borderWidth:2},
+                                symbolSize:12,
+                                symbol:'rect',
+                                data:[80,75,70,90],
+                                z:20
+                              }
+                            ]
+                          }} 
+                        />
+                        <div className="space-y-3">
+                          <h4 className="font-bold text-cyan-600 text-lg">🎯 标靶图 - KPI达成可视化</h4>
+                          <p className="text-sm"><strong>适用场景：</strong>KPI对比、目标达成度、绩效仪表板</p>
+                          <p className="text-sm"><strong>优势：</strong>紧凑展示实际值vs目标值，直观呈现绩效等级</p>
+                          <div className={`text-xs p-3 rounded ${theme==='dark'?'bg-cyan-900/20':'bg-cyan-50'}`}>
+                            <p className="font-semibold mb-2">图表解读：</p>
+                            <ul className="space-y-1">
+                              <li>• <strong>背景色带：</strong>绿(优秀)、橙(良好)、红(及格)三档标准</li>
+                              <li>• <strong>蓝色粗条：</strong>实际完成值</li>
+                              <li>• <strong>红色标记：</strong>目标值（Target）</li>
+                            </ul>
+                            <p className="mt-2"><strong>典型应用：</strong>月度销售目标、部门KPI看板、个人绩效评估</p>
+                            <p className="mt-1 text-yellow-600 font-semibold">⚠️ 注意：合理设置绩效区间；保持指标量纲一致性</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* 4. 主流工具 */}
+            <section id="tools" className="mb-20 scroll-mt-24">
+              <div className={`relative mb-8 p-8 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-gradient-to-br from-orange-900/40 via-gray-800 to-amber-900/40 border-orange-700' : 'bg-gradient-to-br from-orange-50 via-white to-amber-50 border-orange-300'}`}>
+                <div className={`absolute left-0 top-0 w-3 h-full rounded-l-2xl ${theme === 'dark' ? 'bg-gradient-to-b from-orange-500 via-amber-500 to-orange-700' : 'bg-gradient-to-b from-orange-400 via-amber-400 to-orange-600'}`}></div>
+                <div className="pl-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Badge className="bg-orange-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg">PART 04</Badge>
+                    <StarRating count={5} />
+                    <Badge variant="outline" className="text-orange-600 border-orange-600 font-semibold">实战工具</Badge>
+                  </div>
+                  <h2 className={`text-5xl font-black mb-2 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700'}`}>
+                    🛠️ 主流工具与实操
+                  </h2>
+                  <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    掌握专业工具·提升可视化效率
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-green-600 dark:text-green-400 text-xl">
+                      📊 Excel - 轻量快捷之选
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>优势：</strong>零门槛、快速制图、与数据表无缝集成</p>
+                    <p><strong>适用场景：</strong>简单报表、临时分析、数据探索阶段</p>
+                    <div className={`p-3 rounded ${theme==='dark'?'bg-green-900/20':'bg-green-50'}`}>
+                      <p className="font-semibold mb-2">实操要点：</p>
+                      <ul className="space-y-1 text-xs">
+                        <li>• <strong>数据透视表：</strong>快速汇总统计、动态切片分析</li>
+                        <li>• <strong>条件格式：</strong>色阶、数据条、图标集突出关键数据</li>
+                        <li>• <strong>组合图：</strong>柱线组合展示量级不同的指标</li>
+                        <li>• <strong>迷你图：</strong>单元格内嵌趋势图，紧凑型仪表板</li>
+                      </ul>
+                      <p className="mt-2 text-yellow-600 font-semibold">⚠️ 注意：大数据量（&gt;10万行）性能下降；复杂交互支持有限</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-blue-600 dark:text-blue-400 text-xl">
+                      📊 Power BI / Tableau - 商业智能利器
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>优势：</strong>专业级交互、多数据源整合、发布共享</p>
+                    <p><strong>适用场景：</strong>企业仪表板、定期报告、数据驱动决策</p>
+                    <div className={`p-3 rounded ${theme==='dark'?'bg-blue-900/20':'bg-blue-50'}`}>
+                      <p className="font-semibold mb-2">核心功能：</p>
+                      <ul className="space-y-1 text-xs">
+                        <li>• <strong>数据建模：</strong>DAX公式、度量值计算、关系管理</li>
+                        <li>• <strong>交互联动：</strong>切片器、下钻、工具提示页</li>
+                        <li>• <strong>实时刷新：</strong>连接数据库、API、云服务自动更新</li>
+                        <li>• <strong>权限管理：</strong>行级安全、报表分发、嵌入应用</li>
+                      </ul>
+                      <p className="mt-2 text-yellow-600 font-semibold">⚠️ 学习曲线较陡；Tableau更注重探索，Power BI更偏报告</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-purple-600 dark:text-purple-400 text-xl">
+                      🐍 Python (Matplotlib/Seaborn) - 灵活编程方案
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>优势：</strong>完全可定制、与数据分析无缝衔接、批量自动化</p>
+                    <p><strong>适用场景：</strong>科研论文、定制报表、算法结果展示</p>
+                    <div className={`p-3 rounded ${theme==='dark'?'bg-purple-900/20':'bg-purple-50'} overflow-x-auto`}>
+                      <p className="font-semibold mb-2">代码示例：</p>
+                      <pre className="text-xs bg-gray-800 text-green-400 p-2 rounded">
+{`import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Seaborn 快速绘制分布图
+sns.histplot(data=df, x='sales', hue='region')
+plt.title('各区域销售分布')
+plt.show()
+
+# Matplotlib 精细控制
+fig, ax = plt.subplots()
+ax.bar(categories, values)
+ax.set_xlabel('类别')
+ax.set_ylabel('销售额')
+plt.savefig('sales.png', dpi=300)`}
+                      </pre>
+                      <p className="mt-2 text-yellow-600 font-semibold">⚠️ 需要编程基础；静态图为主，交互需配合 Plotly/Bokeh</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2 hover:shadow-xl transition-shadow`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400 text-xl">
+                      🌐 ECharts - Web交互首选
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>优势：</strong>丰富图表库、流畅交互、移动端友好</p>
+                    <p><strong>适用场景：</strong>网站数据大屏、产品内嵌图表、实时监控</p>
+                    <div className={`p-3 rounded ${theme==='dark'?'bg-red-900/20':'bg-red-50'} overflow-x-auto`}>
+                      <p className="font-semibold mb-2">配置示例：</p>
+                      <pre className="text-xs bg-gray-800 text-blue-400 p-2 rounded">
+{`option = {
+  title: { text: '月度销售趋势' },
+  tooltip: { trigger: 'axis' },
+  xAxis: { 
+    type: 'category', 
+    data: ['1月','2月','3月'] 
+  },
+  yAxis: { type: 'value' },
+  series: [{
+    name: '销售额',
+    type: 'line',
+    smooth: true,
+    data: [120, 200, 150]
+  }]
+}
+myChart.setOption(option)`}
+                      </pre>
+                      <p className="mt-2 text-yellow-600 font-semibold">⚠️ 需基础前端知识；大数据量需优化（虚拟滚动、采样）</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* 5. 实战案例 */}
+            <section id="cases" className="mb-20 scroll-mt-24">
+              <div className={`relative mb-8 p-8 rounded-2xl border-2 shadow-xl ${theme === 'dark' ? 'bg-gradient-to-br from-teal-900/40 via-gray-800 to-cyan-900/40 border-teal-700' : 'bg-gradient-to-br from-teal-50 via-white to-cyan-50 border-teal-300'}`}>
+                <div className={`absolute left-0 top-0 w-3 h-full rounded-l-2xl ${theme === 'dark' ? 'bg-gradient-to-b from-teal-500 via-cyan-500 to-teal-700' : 'bg-gradient-to-b from-teal-400 via-cyan-400 to-teal-600'}`}></div>
+                <div className="pl-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Badge className="bg-teal-500 text-white px-4 py-1.5 text-sm font-bold shadow-lg">PART 05</Badge>
+                    <StarRating count={5} />
+                    <Badge variant="outline" className="text-teal-600 border-teal-600 font-semibold">落地实践</Badge>
+                  </div>
+                  <h2 className={`text-5xl font-black mb-2 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-400 to-teal-500' : 'text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-cyan-600 to-teal-700'}`}>
+                    💼 可视化实战案例
+                  </h2>
+                  <p className={`text-base font-medium ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                    真实场景·完整方案·最佳实践
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                  <CardHeader>
+                    <CardTitle className="text-purple-600 dark:text-purple-400 text-xl">
+                      📊 案例1：电商运营仪表板
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>业务需求：</strong>实时监控GMV、转化率、流量来源，快速定位问题</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className={`p-3 rounded ${theme==='dark'?'bg-purple-900/20':'bg-purple-50'}`}>
+                        <p className="font-semibold mb-2">图表选型：</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>核心指标卡：</strong>今日GMV、订单量、客单价（大数字+环比）</li>
+                          <li>• <strong>折线图：</strong>近30天GMV趋势（多条线对比去年同期）</li>
+                          <li>• <strong>漏斗图：</strong>用户转化路径（曝光→点击→下单→支付）</li>
+                          <li>• <strong>饼图：</strong>流量来源占比（搜索/推荐/广告）</li>
+                          <li>• <strong>热力图：</strong>不同时段成交密度，优化促销时间</li>
+                        </ul>
+                      </div>
+                      <div className={`p-3 rounded ${theme==='dark'?'bg-purple-900/20':'bg-purple-50'}`}>
+                        <p className="font-semibold mb-2">实施方案：</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>工具：</strong>Power BI 连接数据仓库，1小时自动刷新</li>
+                          <li>• <strong>交互：</strong>时间切片器（日/周/月），品类筛选器联动所有图表</li>
+                          <li>• <strong>预警：</strong>转化率低于阈值时，指标卡变红并发送邮件</li>
+                          <li>• <strong>优化：</strong>移动端适配，管理层手机随时查看</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <p className="text-green-600 font-semibold">✅ 效果：决策周期从周级缩短到日级，及时调整营销策略使GMV提升15%</p>
+                  </CardContent>
+                </Card>
+
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                  <CardHeader>
+                    <CardTitle className="text-blue-600 dark:text-blue-400 text-xl">
+                      📈 案例2：A/B测试结果可视化
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>业务需求：</strong>对比新旧版本按钮颜色对点击率的影响</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className={`p-3 rounded ${theme==='dark'?'bg-blue-900/20':'bg-blue-50'}`}>
+                        <p className="font-semibold mb-2">图表选型：</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>箱线图：</strong>对比A/B两组点击率分布，检查离群值</li>
+                          <li>• <strong>柱状图+误差线：</strong>均值对比，显示95%置信区间</li>
+                          <li>• <strong>折线图：</strong>分天趋势，观察新奇效应是否消退</li>
+                          <li>• <strong>散点图：</strong>用户画像（年龄×点击率），细分人群分析</li>
+                        </ul>
+                      </div>
+                      <div className={`p-3 rounded ${theme==='dark'?'bg-blue-900/20':'bg-blue-50'}`}>
+                        <p className="font-semibold mb-2">统计验证：</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>假设检验：</strong>t检验p值标注（p=0.002，拒绝H0）</li>
+                          <li>• <strong>效应量：</strong>Cohen&apos;s d = 0.35（中等效应）</li>
+                          <li>• <strong>功效分析：</strong>当前样本量达到80%检验功效</li>
+                          <li>• <strong>置信区间：</strong>新版提升2.1%~4.3%（95% CI）</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <p className="text-green-600 font-semibold">✅ 效果：数据支持全量上线新版本，避免主观决策失误</p>
+                  </CardContent>
+                </Card>
+
+                <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} border-2`}>
+                  <CardHeader>
+                    <CardTitle className="text-orange-600 dark:text-orange-400 text-xl">
+                      🗺️ 案例3：区域销售地图与归因分析
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} text-sm space-y-3`}>
+                    <p><strong>业务需求：</strong>定位高潜力市场，优化销售资源配置</p>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className={`p-3 rounded ${theme==='dark'?'bg-orange-900/20':'bg-orange-50'}`}>
+                        <p className="font-semibold mb-2">图表选型：</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>地图热力：</strong>各省销售额用颜色深浅表示</li>
+                          <li>• <strong>气泡图：</strong>城市销售额（气泡大小）×增长率（Y轴）×利润率（颜色）</li>
+                          <li>• <strong>桑基图：</strong>渠道→区域→产品类别的销售流向</li>
+                          <li>• <strong>矩形树图：</strong>各省份占比，支持下钻到城市级</li>
+                        </ul>
+                      </div>
+                      <div className={`p-3 rounded ${theme==='dark'?'bg-orange-900/20':'bg-orange-50'}`}>
+                        <p className="font-semibold mb-2">洞察与行动：</p>
+                        <ul className="space-y-1 text-xs">
+                          <li>• <strong>发现：</strong>西南地区销售额低但增速快（+45% YoY）</li>
+                          <li>• <strong>发现：</strong>华东利润率高但份额下降，竞品挤压</li>
+                          <li>• <strong>行动：</strong>增加西南地区销售人员，华东启动促销</li>
+                          <li>• <strong>追踪：</strong>每月更新地图，监控策略效果</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <p className="text-green-600 font-semibold">✅ 效果：资源重新配置后，西南销售额季度增长30%，整体利润提升8%</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+
+      {showScrollTop && (
+        <div className="fixed bottom-8 right-8 z-50">
+          <a 
+            href="#" 
+            className={`flex items-center gap-2 px-4 py-3 rounded-full shadow-xl transition-all hover:scale-110 ${
+              theme === 'dark' ? 'bg-purple-600 text-white' : 'bg-purple-500 text-white'
+            }`}
+          >
+            <ChevronUp size={20} />
+            <span className="text-sm font-semibold">返回顶部</span>
+          </a>
+        </div>
+      )}
+    </div>
+  )
+}
+

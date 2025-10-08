@@ -1,0 +1,53 @@
+"use client"
+
+import { Navigation } from "@/components/navigation"
+import { ArrowLeft, Home } from "lucide-react"
+import Link from "next/link"
+import { useTheme } from "@/components/theme-provider"
+
+export default function ExcelTextCleaningPage() {
+  const { theme } = useTheme()
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <Navigation />
+      <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b sticky top-0 z-10`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700"><Home size={20} /><span className="font-medium">主页</span></Link>
+              <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-500'}`}>/</span>
+              <Link href="/excel" className="text-blue-600 hover:text-blue-700 font-medium">EXCEL 模块</Link>
+              <span className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-500'}`}>/</span>
+              <span className={`${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'} font-medium`}>2. 文本清洗函数</span>
+            </div>
+            <Link href="/excel" className="flex items-center space-x-2 text-gray-600 hover:text-gray-700"><ArrowLeft size={16} /><span>返回</span></Link>
+          </div>
+        </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className={`text-3xl font-bold mb-6 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>2. 文本清洗函数</h1>
+        <div className={`${theme === 'dark' ? 'bg-white/5' : 'bg-white'} rounded-lg shadow-sm p-8 space-y-6`}>
+          <section>
+            <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>常用函数</h2>
+            <ul className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} list-disc pl-6 space-y-2`}>
+              <li>TRIM：去除前后与中间多余空格</li>
+              <li>CLEAN：删除非打印字符（如换行、制表）</li>
+              <li>SUBSTITUTE：按指定内容替换文本</li>
+              <li>LEFT/RIGHT/MID：按长度截取文本</li>
+            </ul>
+          </section>
+          <section>
+            <h2 className={`text-xl font-semibold mb-2 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>练习场景</h2>
+            <ul className={`${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} list-disc pl-6 space-y-2`}>
+              <li>清理姓名：TRIM(CLEAN(姓名))，并用 IFERROR 捕获异常。</li>
+              <li>统一日期：TEXT(原始日期, "yyyy-mm-dd") 标准化显示。</li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
+

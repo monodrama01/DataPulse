@@ -1,0 +1,689 @@
+"use client"
+
+import React, { useState, useEffect } from 'react'
+import { Navigation } from "@/components/navigation"
+import { useTheme } from "@/components/theme-provider"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { 
+  Home, Plane, Target, TrendingUp, CheckCircle, 
+  ChevronUp, AlertCircle, BarChart3, BookOpen, MapPin, 
+  Calendar, Hotel, Car, Ticket, Users
+} from "lucide-react"
+import Link from "next/link"
+import {
+  BookingDistributionChart,
+  DynamicPricingChart,
+  CancellationAnalysisChart
+} from "./visualizations"
+import { IndustryDropdown } from "../IndustryDropdown"
+
+export default function TravelPage() {
+  const { theme } = useTheme()
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <Navigation />
+
+      <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-2">
+              <Link href="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors">
+                <Home size={20} />
+                <span className="font-medium">主页</span>
+              </Link>
+              <span className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}>/</span>
+              <Link href="/business" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors">
+                <span className="font-medium">业务知识</span>
+              </Link>
+              <span className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}>/</span>
+              <span className={`font-medium ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>旅游出行数据分析</span>
+            </div>
+            <IndustryDropdown theme={theme} currentIndustry="travel" />
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex gap-8">
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className={`sticky top-24 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl border p-6 shadow-lg`}>
+              <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+                📖 页面导航
+              </h3>
+              <nav className="space-y-2">
+                <a href="#overview" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-blue-900/30 text-blue-400' : 'hover:bg-blue-50 text-blue-600'}`}>
+                  <span>💡</span><span>行业概览</span>
+                </a>
+                <a href="#metrics" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-purple-900/30 text-purple-400' : 'hover:bg-purple-50 text-purple-600'}`}>
+                  <span>📊</span><span>核心指标体系</span>
+                </a>
+                <a href="#scenarios" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-green-900/30 text-green-400' : 'hover:bg-green-50 text-green-600'}`}>
+                  <span>🎯</span><span>典型分析场景</span>
+                </a>
+                <a href="#visualizations" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-indigo-900/30 text-indigo-400' : 'hover:bg-indigo-50 text-indigo-600'}`}>
+                  <span>📊</span><span>数据可视化分析</span>
+                </a>
+                <a href="#python-examples" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-yellow-900/30 text-yellow-400' : 'hover:bg-yellow-50 text-yellow-600'}`}>
+                  <span>🐍</span><span>Python示例</span>
+                </a>
+                <a href="#case-studies" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-cyan-900/30 text-cyan-400' : 'hover:bg-cyan-50 text-cyan-600'}`}>
+                  <span>📖</span><span>真实案例研究</span>
+                </a>
+                <a href="#pitfalls" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-red-900/30 text-red-400' : 'hover:bg-red-50 text-red-600'}`}>
+                  <span>⚠️</span><span>行业避坑指南</span>
+                </a>
+                <a href="#formula-reference" className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${theme === 'dark' ? 'hover:bg-purple-900/30 text-purple-400' : 'hover:bg-purple-50 text-purple-600'}`}>
+                  <span>📖</span><span>核心公式速查表</span>
+                </a>
+              </nav>
+            </div>
+          </aside>
+
+          <div className="flex-1 min-w-0">
+            <div className="mb-16 relative overflow-hidden">
+              <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-gradient-to-r from-sky-900/20 via-blue-900/20 to-indigo-900/20' : 'bg-gradient-to-r from-sky-100 via-blue-100 to-indigo-100'} rounded-2xl`}></div>
+              
+              <div className="relative z-10 p-8">
+                <div className="flex items-center gap-6 mb-6">
+                  <div className={`p-5 rounded-2xl ${theme === 'dark' ? 'bg-gradient-to-br from-sky-600 to-blue-700 shadow-2xl shadow-sky-500/30' : 'bg-gradient-to-br from-sky-500 to-blue-600 shadow-2xl shadow-sky-400/30'} animate-pulse`}>
+                    <Plane className="h-14 w-14 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h1 className={`text-5xl font-black mb-3 ${theme === 'dark' ? 'text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-400' : 'text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600'}`}>
+                      旅游出行数据分析
+                    </h1>
+                    <p className={`text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      从预订到出行，构建完整的旅游数据分析能力
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <section id="overview" className="mb-20">
+              <div className={`${theme === 'dark' ? 'bg-gradient-to-br from-sky-900/30 to-blue-900/30 border-sky-700' : 'bg-gradient-to-br from-sky-50 to-blue-50 border-sky-200'} border-2 rounded-xl p-8 shadow-lg`}>
+                <h2 className={`text-3xl font-bold mb-6 flex items-center gap-3 ${theme === 'dark' ? 'text-sky-400' : 'text-sky-600'}`}>
+                  <Target className="h-8 w-8" />
+                  旅游出行数据分析全景图
+                </h2>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/80'} rounded-lg p-6`}>
+                    <div className="text-3xl font-bold text-sky-500 mb-2">3大品类</div>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      机票、酒店、用车，多业务线协同分析
+                    </p>
+                  </div>
+                  <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/80'} rounded-lg p-6`}>
+                    <div className="text-3xl font-bold text-blue-500 mb-2">4大环节</div>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      搜索、预订、支付、出行，全链路追踪
+                    </p>
+                  </div>
+                  <div className={`${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/80'} rounded-lg p-6`}>
+                    <div className="text-3xl font-bold text-indigo-500 mb-2">5项指标</div>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      GMV、转化率、取消率、复购率、客单价
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="metrics" className="mb-20">
+              <h2 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>核心指标体系</h2>
+              
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader><CardTitle>📈 交易类指标</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      { name: 'GMV', formula: '= 订单量 × 客单价', desc: '核心业务规模指标' },
+                      { name: '搜索-预订转化率', formula: '= 预订用户 / 搜索用户', desc: '漏斗核心转化' },
+                      { name: '支付转化率', formula: '= 支付订单 / 提交订单', desc: '支付流程效率' },
+                      { name: '客单价', formula: '= GMV / 订单数', desc: '单次消费金额' }
+                    ].map((item, i) => (
+                      <div key={i} className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                        <h4 className="font-bold mb-2">{item.name}</h4>
+                        <code className="text-xs text-sky-600 dark:text-sky-400 block mb-2">{item.formula}</code>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader><CardTitle>⚠️ 风险类指标</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      { name: '取消率', formula: '= 取消订单数 / 总订单数', desc: '服务可靠性指标' },
+                      { name: '退款率', formula: '= 退款金额 / GMV', desc: '资金风险指标' },
+                      { name: '投诉率', formula: '= 投诉订单 / 总订单', desc: '服务质量指标' },
+                      { name: '差评率', formula: '= 差评订单 / 评价订单', desc: '用户满意度' }
+                    ].map((item, i) => (
+                      <div key={i} className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                        <h4 className="font-bold mb-2">{item.name}</h4>
+                        <code className="text-xs text-red-600 dark:text-red-400 block mb-2">{item.formula}</code>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                <CardHeader><CardTitle>👥 用户类指标</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {[
+                      { name: '复购率', formula: '= 复购用户 / 总用户', desc: '用户忠诚度' },
+                      { name: '用户留存率', formula: '= 次月活跃 / 本月新增', desc: '用户粘性指标' },
+                      { name: 'LTV', formula: '= 人均消费 × 复购次数', desc: '用户生命周期价值' },
+                      { name: '提前预订天数', formula: '出行日期 - 预订日期', desc: '用户行为特征' }
+                    ].map((item, i) => (
+                      <div key={i} className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                        <h4 className="font-bold mb-2">{item.name}</h4>
+                        <code className="text-xs text-green-600 dark:text-green-400 block mb-2">{item.formula}</code>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section id="scenarios" className="mb-20">
+              <h2 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>典型分析场景</h2>
+              
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader><CardTitle>场景一：用户预订行为分析</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-5 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <Badge className="mb-3">SQL示例</Badge>
+                    <pre className={`text-xs overflow-x-auto p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-950' : 'bg-white'}`}>
+                      <code className={theme === 'dark' ? 'text-green-400' : 'text-green-700'}>{`-- 分析不同提前预订天数的转化率和客单价
+SELECT 
+    CASE 
+        WHEN days_in_advance >= 30 THEN '30天以上'
+        WHEN days_in_advance >= 15 THEN '15-30天'
+        WHEN days_in_advance >= 7 THEN '7-15天'
+        WHEN days_in_advance >= 3 THEN '3-7天'
+        ELSE '3天以内'
+    END as advance_booking_period,
+    COUNT(*) as order_count,
+    AVG(order_amount) as avg_order_amount,
+    SUM(CASE WHEN order_status = 'completed' THEN 1 ELSE 0 END) / COUNT(*) as completion_rate,
+    SUM(CASE WHEN is_canceled = 1 THEN 1 ELSE 0 END) / COUNT(*) as cancellation_rate,
+    AVG(DATEDIFF(travel_date, booking_date)) as avg_days_in_advance
+FROM travel_orders
+WHERE booking_date >= DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY)
+GROUP BY advance_booking_period
+ORDER BY avg_days_in_advance DESC;`}</code>
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                <CardHeader><CardTitle>场景二：动态定价效果分析</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-5 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <Badge className="mb-3">SQL示例</Badge>
+                    <pre className={`text-xs overflow-x-auto p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-950' : 'bg-white'}`}>
+                      <code className={theme === 'dark' ? 'text-green-400' : 'text-green-700'}>{`-- 分析不同价格区间的订单表现
+WITH price_segments AS (
+    SELECT 
+        product_id,
+        product_name,
+        price,
+        CASE 
+            WHEN price < base_price * 0.8 THEN '促销价'
+            WHEN price >= base_price * 1.2 THEN '高峰价'
+            ELSE '正常价'
+        END as price_type
+    FROM pricing_records
+    WHERE date >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+)
+SELECT 
+    p.price_type,
+    COUNT(DISTINCT o.order_id) as order_count,
+    SUM(o.order_amount) as total_revenue,
+    AVG(o.order_amount) as avg_order_amount,
+    SUM(CASE WHEN o.order_status = 'completed' THEN 1 ELSE 0 END) / COUNT(*) as conversion_rate,
+    AVG(p.price) as avg_price
+FROM price_segments p
+JOIN orders o ON p.product_id = o.product_id AND DATE(o.booking_time) = p.date
+GROUP BY p.price_type
+ORDER BY total_revenue DESC;`}</code>
+                    </pre>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* 数据可视化分析 */}
+            <section id="visualizations" className="mb-20 scroll-mt-24">
+              <h2 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`}>数据可视化分析</h2>
+              
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader><CardTitle>用户预订时间分布</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <BookingDistributionChart theme={theme} />
+                  </div>
+                  <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <strong>数据洞察：</strong>提前15-30天预订的用户占比达47%，是主流预订窗口期。
+                      提前3天内预订的用户仅占10%，但客单价普遍较高。建议针对不同预订周期制定差异化定价和营销策略。
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader><CardTitle>动态定价策略分析</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <DynamicPricingChart theme={theme} />
+                  </div>
+                  <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <strong>优化建议：</strong>价格与需求呈明显正相关。临近出行日期，价格上涨106%，需求仍保持旺盛。
+                      建议建立智能定价模型，结合历史数据、竞品价格、库存情况动态调整价格，最大化收益。
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                <CardHeader><CardTitle>订单取消原因分析</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-6 rounded-xl ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <CancellationAnalysisChart theme={theme} />
+                  </div>
+                  <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-red-900/20' : 'bg-red-50'}`}>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <strong>关键发现：</strong>价格波动和行程变更是取消订单的主要原因，合计占比60%。
+                      建议推出"价格保护"和"灵活变更"服务，降低用户取消率，提升用户满意度。
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* Python代码示例 */}
+            <section id="python-examples" className="mb-20 scroll-mt-24">
+              <h2 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`}>Python数据分析示例</h2>
+              
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader><CardTitle>示例一：需求预测模型</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-5 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <Badge variant="secondary" className="mb-3">Python + Machine Learning</Badge>
+                    <pre className={`text-xs overflow-x-auto p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-950' : 'bg-white'}`}>
+                      <code className={theme === 'dark' ? 'text-blue-400' : 'text-blue-700'}>{`import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, r2_score
+
+# 读取历史订单数据
+df = pd.read_sql("""
+    SELECT 
+        DATE(booking_date) as date,
+        destination,
+        COUNT(*) as order_count,
+        AVG(order_amount) as avg_amount,
+        DAYOFWEEK(booking_date) as day_of_week,
+        DATEDIFF(travel_date, booking_date) as days_in_advance,
+        is_holiday,
+        is_weekend
+    FROM travel_orders
+    WHERE booking_date >= DATE_SUB(CURRENT_DATE, INTERVAL 365 DAY)
+    GROUP BY date, destination
+""", conn)
+
+# 特征工程
+df['month'] = pd.to_datetime(df['date']).dt.month
+df['season'] = df['month'].map({12:1, 1:1, 2:1, 3:2, 4:2, 5:2, 
+                                  6:3, 7:3, 8:3, 9:4, 10:4, 11:4})
+
+# 准备训练数据
+features = ['day_of_week', 'days_in_advance', 'is_holiday', 
+            'is_weekend', 'month', 'season']
+X = df[features]
+y = df['order_count']
+
+# 划分训练集和测试集
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# 训练随机森林模型
+model = RandomForestRegressor(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# 模型评估
+y_pred = model.predict(X_test)
+mae = mean_absolute_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f"MAE: {mae:.2f}")
+print(f"R²: {r2:.4f}")
+
+# 预测未来7天需求
+future_dates = pd.date_range(start='today', periods=7)
+future_df = pd.DataFrame({
+    'day_of_week': future_dates.dayofweek,
+    'days_in_advance': 15,  # 假设提前15天预订
+    'is_holiday': 0,
+    'is_weekend': future_dates.dayofweek.isin([5, 6]).astype(int),
+    'month': future_dates.month,
+    'season': future_dates.month.map({12:1, 1:1, 2:1, 3:2, 4:2, 5:2, 
+                                       6:3, 7:3, 8:3, 9:4, 10:4, 11:4})
+})
+
+predictions = model.predict(future_df)
+print("\\n未来7天订单量预测：")
+for date, pred in zip(future_dates, predictions):
+    print(f"{date.strftime('%Y-%m-%d')}: {pred:.0f}单")`}</code>
+                    </pre>
+                  </div>
+                  <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <strong>应用场景：</strong>通过机器学习预测未来需求，提前做好库存准备和价格调整。
+                      模型可结合节假日、季节、竞品数据等多维特征，提升预测准确度。
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                <CardHeader><CardTitle>示例二：用户流失预警模型</CardTitle></CardHeader>
+                <CardContent>
+                  <div className={`p-5 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                    <Badge variant="secondary" className="mb-3">Python + Classification</Badge>
+                    <pre className={`text-xs overflow-x-auto p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-950' : 'bg-white'}`}>
+                      <code className={theme === 'dark' ? 'text-blue-400' : 'text-blue-700'}>{`import pandas as pd
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, roc_auc_score
+
+# 读取用户行为数据
+df = pd.read_sql("""
+    SELECT 
+        user_id,
+        total_orders,
+        avg_order_amount,
+        last_order_days_ago,
+        cancel_rate,
+        complaint_count,
+        app_open_frequency,
+        is_churned
+    FROM user_behavior_features
+    WHERE last_update_date >= DATE_SUB(CURRENT_DATE, INTERVAL 90 DAY)
+""", conn)
+
+# 特征和标签
+features = ['total_orders', 'avg_order_amount', 'last_order_days_ago',
+            'cancel_rate', 'complaint_count', 'app_open_frequency']
+X = df[features]
+y = df['is_churned']
+
+# 划分数据集
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+
+# 训练梯度提升分类器
+model = GradientBoostingClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    max_depth=5,
+    random_state=42
+)
+model.fit(X_train, y_train)
+
+# 模型评估
+y_pred = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, 1]
+
+print("分类报告：")
+print(classification_report(y_test, y_pred))
+print(f"\\nROC-AUC: {roc_auc_score(y_test, y_proba):.4f}")
+
+# 特征重要性
+feature_importance = pd.DataFrame({
+    'feature': features,
+    'importance': model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+print("\\n特征重要性：")
+print(feature_importance)
+
+# 识别高流失风险用户
+high_risk_users = df[df['user_id'].isin(X_test.index)]
+high_risk_users['churn_probability'] = y_proba
+high_risk_users = high_risk_users[
+    high_risk_users['churn_probability'] > 0.7
+].sort_values('churn_probability', ascending=False)
+
+print(f"\\n识别到 {len(high_risk_users)} 个高流失风险用户")
+print("建议对这些用户进行精准召回和挽留")`}</code>
+                    </pre>
+                  </div>
+                  <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                      <strong>应用场景：</strong>通过分类模型识别高流失风险用户，提前发放优惠券或专属服务进行挽留。
+                      可显著降低用户流失率，提升用户LTV。
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* 真实案例研究 */}
+            <section id="case-studies" className="mb-20 scroll-mt-24">
+              <h2 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>真实案例研究</h2>
+              
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} mb-8`}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span>案例一：某OTA平台动态定价优化</span>
+                    <Badge variant="outline" className="text-green-600">成功案例</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                      <h4 className="font-bold mb-2">📌 背景</h4>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        某在线旅游平台发现，虽然订单量持续增长，但利润率逐年下降。经分析发现，
+                        传统固定定价策略无法应对市场需求波动，导致低价期库存浪费，高价期库存不足。
+                      </p>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                      <h4 className="font-bold mb-2">🔍 数据分析发现</h4>
+                      <ul className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <li>• 节假日前7天价格仍维持日常水平，错失高收益机会</li>
+                        <li>• 工作日库存大量闲置，价格缺乏竞争力</li>
+                        <li>• 不同航线、不同时段需求差异大，统一定价不合理</li>
+                        <li>• 竞品价格变化频繁，自身价格调整滞后</li>
+                      </ul>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                      <h4 className="font-bold mb-2">💡 优化方案</h4>
+                      <ul className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <li>• 建立机器学习动态定价模型，实时调整价格</li>
+                        <li>• 考虑需求预测、竞品价格、库存水位等多维因素</li>
+                        <li>• 针对不同用户群体差异化定价（新客/老客/会员）</li>
+                        <li>• 建立价格保护机制，降低用户因价格波动取消订单</li>
+                      </ul>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20' : 'bg-purple-50'}`}>
+                      <h4 className="font-bold mb-2">📈 优化效果</h4>
+                      <div className="grid md:grid-cols-3 gap-4 mt-3">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-500">+28%</div>
+                          <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>利润率提升</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-500">-15%</div>
+                          <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>取消率下降</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-purple-500">+35%</div>
+                          <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>库存周转率</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span>案例二：某酒店预订平台用户召回策略</span>
+                    <Badge variant="outline" className="text-blue-600">增长案例</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                      <h4 className="font-bold mb-2">📌 背景</h4>
+                      <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        某酒店预订平台发现，新客获客成本高达300元/人，而老客复购率仅25%，
+                        大量用户在首次订单后流失，导致获客投入无法有效转化为长期价值。
+                      </p>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20' : 'bg-blue-50'}`}>
+                      <h4 className="font-bold mb-2">🔍 数据分析发现</h4>
+                      <ul className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <li>• 用户首次预订后60天内未再次访问，流失概率高达80%</li>
+                        <li>• 缺乏针对性的召回触达，仅发送通用促销信息</li>
+                        <li>• 用户对目的地偏好、出行周期等画像不精准</li>
+                        <li>• 高价值用户（年订单3次以上）仅占5%，但贡献40% GMV</li>
+                      </ul>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20' : 'bg-orange-50'}`}>
+                      <h4 className="font-bold mb-2">💡 优化方案</h4>
+                      <ul className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                        <li>• 建立用户流失预警模型，识别高风险流失用户</li>
+                        <li>• 基于历史订单分析用户偏好，精准推送目的地优惠</li>
+                        <li>• 建立会员积分体系，首单用户赠送积分激励复购</li>
+                        <li>• 在用户历史出行周期前30天自动触发召回推送</li>
+                      </ul>
+                    </div>
+                    
+                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                      <h4 className="font-bold mb-2">📈 优化效果</h4>
+                      <div className="grid md:grid-cols-3 gap-4 mt-3">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-green-500">25% → 45%</div>
+                          <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>用户复购率</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-blue-500">+82%</div>
+                          <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>召回推送点击率</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-orange-500">+150%</div>
+                          <div className={`text-xs mt-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>用户LTV</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+
+            <section id="pitfalls" className="mb-20">
+              <h2 className={`text-4xl font-bold mb-6 ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>行业避坑指南</h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {[
+                  { title: '过度依赖促销', problem: '频繁价格战导致利润下降', solution: '平衡促销与利润，优化动态定价' },
+                  { title: '忽视取消率', problem: '只看GMV不看取消率', solution: '建立取消率预警和改善机制' },
+                  { title: '供应商管理粗放', problem: '供应商质量参差不齐', solution: '建立供应商评级和淘汰机制' },
+                  { title: '数据孤岛', problem: '机票、酒店、用车数据割裂', solution: '打通全品类数据，交叉分析' },
+                  { title: '季节性盲目', problem: '忽视淡旺季差异', solution: '建立季节性对比和预测模型' },
+                  { title: '客诉处理滞后', problem: '投诉响应慢导致差评', solution: '建立客诉快速响应机制' }
+                ].map((item, i) => (
+                  <Card key={i} className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                    <CardContent className="pt-6">
+                      <h3 className="text-lg font-bold mb-4">{item.title}</h3>
+                      <div className={`p-3 rounded-lg mb-3 ${theme === 'dark' ? 'bg-red-900/20' : 'bg-red-50'}`}>
+                        <p className="text-sm font-semibold text-red-500">❌ {item.problem}</p>
+                      </div>
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                        <p className="text-sm font-semibold text-green-500">✅ {item.solution}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+
+            <section id="formula-reference" className="mb-20">
+              <div className={`${theme === 'dark' ? 'bg-gradient-to-br from-sky-900/20 to-blue-900/20 border-sky-700' : 'bg-gradient-to-br from-sky-50 to-blue-50 border-sky-200'} border-2 rounded-xl p-8 shadow-lg`}>
+                <h2 className={`text-3xl font-bold mb-6 flex items-center gap-3 ${theme === 'dark' ? 'text-sky-400' : 'text-sky-600'}`}>
+                  <BookOpen className="h-8 w-8" />
+                  核心公式速查表
+                </h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {[
+                    { title: '📈 交易指标', formulas: ['GMV = 订单量 × 客单价', '转化率 = 预订用户 / 搜索用户'] },
+                    { title: '⚠️ 风险指标', formulas: ['取消率 = 取消订单 / 总订单', '退款率 = 退款金额 / GMV'] },
+                    { title: '👥 用户指标', formulas: ['复购率 = 复购用户 / 总用户', 'LTV = 人均消费 × 复购次数'] },
+                    { title: '💰 效率指标', formulas: ['利润率 = 利润 / GMV', '供应商覆盖率 = 有货SKU / 总SKU'] }
+                  ].map((section, i) => (
+                    <div key={i} className={`p-5 rounded-xl ${theme === 'dark' ? 'bg-sky-900/30' : 'bg-sky-50'}`}>
+                      <h4 className="text-lg font-bold mb-4">{section.title}</h4>
+                      <div className="space-y-3">
+                        {section.formulas.map((formula, j) => (
+                          <div key={j} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+                            <code className="text-sm text-sky-600 dark:text-sky-400">{formula}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <div className={`mt-16 text-center p-8 rounded-xl ${theme === 'dark' ? 'bg-gradient-to-r from-sky-900/30 to-blue-900/30' : 'bg-gradient-to-r from-sky-50 to-blue-50'}`}>
+              <p className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                ✨ 旅游出行数据分析页面已完善！
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showScrollTop && (
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 right-8 p-3 rounded-full shadow-lg ${theme === 'dark' ? 'bg-sky-600 hover:bg-sky-700 text-white' : 'bg-white hover:bg-gray-100 text-gray-900 border'}`}>
+          <ChevronUp size={24} />
+        </button>
+      )}
+    </div>
+  )
+}
+

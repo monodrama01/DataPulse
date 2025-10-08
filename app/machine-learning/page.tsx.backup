@@ -1,0 +1,1811 @@
+"use client"
+
+import { Navigation } from "@/components/navigation"
+import { Home, Brain, ChevronUp } from "lucide-react"
+import Link from "next/link"
+import { useTheme } from "@/components/theme-provider"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import { 
+  ConfusionMatrixChart, 
+  ROCCurveChart, 
+  FeatureImportanceChart, 
+  LearningCurveChart,
+  ClusteringVisualization,
+  RegressionScatterChart
+} from './visualizations'
+import { ImbalancedDataModule, ModelInterpretabilityModule, TimeSeriesModule, AnomalyDetectionModule, DimensionalityReductionModule, EnsembleLearningModule, ModelDeploymentModule } from './advanced-modules'
+
+export default function MachineLearningPage() {
+  const { theme } = useTheme()
+  const [activeSection, setActiveSection] = useState<string[]>([])
+  const [showScrollTop, setShowScrollTop] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400)
+      
+      const sections = ['ml-intro', 'eda', 'data-preprocessing', 'feature-engineering', 'imbalanced-data', 'classification', 'regression', 'clustering', 'time-series', 'anomaly-detection', 'dimensionality-reduction', 'ensemble-learning', 'model-interpretability', 'model-evaluation', 'model-deployment', 'case-studies']
+      const current: string[] = []
+      
+      for (const sectionId of sections) {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          if (rect.top <= 150 && rect.bottom >= 150) {
+            current.push(sectionId)
+            break
+          }
+        }
+      }
+      setActiveSection(current)
+    }
+    window.addEventListener('scroll', handleScroll)
+    handleScroll()
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <Navigation />
+
+      {/* 面包屑导航 */}
+      <div className={`${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} border-b sticky top-0 z-10`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center space-x-2 h-16">
+            <Link href="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 transition-colors">
+              <Home size={20} />
+              <span className="font-medium">主页</span>
+            </Link>
+            <span className={theme === 'dark' ? 'text-gray-600' : 'text-gray-400'}>/</span>
+            <span className={`font-medium ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>机器学习</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 主标题区域 */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className={`text-center mb-12 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center shadow-lg">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold mb-3">机器学习 - 数据分析师必备</h1>
+          <p className={`text-lg ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+            从预测用户流失到销售预测，掌握核心算法，解决实际业务问题
+          </p>
+        </div>
+
+        <div className="flex gap-8">
+          {/* 左侧导航 */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className={`sticky top-24 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl border p-6 shadow-lg max-h-[calc(100vh-120px)] overflow-y-auto`}>
+              <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-900'}`}>
+                📖 页面导航
+              </h3>
+              <nav className="space-y-2">
+                {[
+                  { id: 'ml-intro', icon: '🚀', label: 'ML入门' },
+                  { id: 'eda', icon: '🔍', label: 'EDA数据探索' },
+                  { id: 'data-preprocessing', icon: '🧹', label: '数据预处理' },
+                  { id: 'feature-engineering', icon: '⚙️', label: '特征工程' },
+                  { id: 'imbalanced-data', icon: '⚖️', label: '样本不均衡' },
+                  { id: 'classification', icon: '🎲', label: '分类算法' },
+                  { id: 'regression', icon: '📈', label: '回归算法' },
+                  { id: 'clustering', icon: '🔮', label: '聚类算法' },
+                  { id: 'time-series', icon: '📉', label: '时间序列' },
+                  { id: 'anomaly-detection', icon: '🚨', label: '异常检测' },
+                  { id: 'dimensionality-reduction', icon: '📐', label: '降维可视化' },
+                  { id: 'ensemble-learning', icon: '🎯', label: '集成学习' },
+                  { id: 'model-interpretability', icon: '💡', label: '模型解释' },
+                  { id: 'model-evaluation', icon: '📊', label: '评估调优' },
+                  { id: 'model-deployment', icon: '🚀', label: '部署监控' },
+                  { id: 'case-studies', icon: '💼', label: '实战案例' }
+                ].map(item => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-all ${
+                      activeSection.includes(item.id)
+                        ? 'bg-blue-50 text-blue-600 hover:text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:text-blue-300'
+                        : theme === 'dark'
+                        ? 'hover:bg-gray-700 text-gray-300 hover:text-blue-400'
+                        : 'hover:bg-blue-50 text-gray-700 hover:text-blue-600'
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          {/* 主内容区 */}
+          <main className="flex-1 min-w-0">
+            <div className="space-y-8">
+              {/* 核心价值 */}
+              <Card className={theme === 'dark' ? 'bg-gradient-to-br from-blue-900/30 to-purple-900/30 border-blue-700' : 'bg-gradient-to-br from-blue-50 to-purple-50 border-blue-200'}>
+                <CardContent className="pt-6">
+                  <h2 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>
+                    🎯 为什么数据分析师要学机器学习？
+                  </h2>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    {[
+                      { value: '预测未来', desc: '销售预测、用户流失', icon: '🔮' },
+                      { value: '自动分类', desc: '客户分群、风险识别', icon: '🎯' },
+                      { value: '智能推荐', desc: '商品推荐、内容推荐', icon: '💡' }
+                    ].map((item, idx) => (
+                      <div key={idx} className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800/50' : 'bg-white/80'}`}>
+                        <div className="text-4xl mb-2">{item.icon}</div>
+                        <div className={`text-lg font-bold mb-1 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{item.value}</div>
+                        <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* MODULE 01: 机器学习入门 */}
+              <section id="ml-intro">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">🎯 01. 机器学习入门</h2>
+                    </div>
+                    <p className="text-blue-50 ml-7">10分钟了解核心概念，快速入门机器学习</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* 核心概念 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📚 机器学习三大类型
+                        </h3>
+                        <div className="space-y-3">
+                          <div className={`p-4 rounded-lg border ${theme === 'dark' ? 'bg-blue-900/20 border-blue-700' : 'bg-blue-50 border-blue-200'}`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <p className={`font-bold text-lg ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>监督学习</p>
+                              <span className={`text-xs px-2 py-1 rounded ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'}`}>⭐⭐⭐⭐⭐</span>
+                            </div>
+                            <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>有标签数据，学习输入到输出的映射</p>
+                            <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <strong>应用：</strong>分类（用户流失预测）、回归（销售预测）
+                            </p>
+                          </div>
+
+                          <div className={`p-4 rounded-lg border ${theme === 'dark' ? 'bg-green-900/20 border-green-700' : 'bg-green-50 border-green-200'}`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <p className={`font-bold text-lg ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>无监督学习</p>
+                              <span className={`text-xs px-2 py-1 rounded ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'}`}>⭐⭐⭐⭐</span>
+                            </div>
+                            <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>无标签数据，发现数据内在结构</p>
+                            <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <strong>应用：</strong>聚类（客户分群）、降维（特征压缩）
+                            </p>
+                          </div>
+
+                          <div className={`p-4 rounded-lg border ${theme === 'dark' ? 'bg-purple-900/20 border-purple-700' : 'bg-purple-50 border-purple-200'}`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <p className={`font-bold text-lg ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>强化学习</p>
+                              <span className={`text-xs px-2 py-1 rounded ${theme === 'dark' ? 'bg-gray-700' : 'bg-white'}`}>⭐⭐</span>
+                            </div>
+                            <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>通过与环境交互学习最优策略</p>
+                            <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <strong>应用：</strong>推荐系统、游戏AI（数据分析较少用）
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 数据分析师学习路径 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>🎯 数据分析师12周学习路径</h4>
+                        <div className="grid grid-cols-3 gap-3">
+                          {[
+                            { week: '第1-2周', content: 'Python基础 + Pandas', result: '数据处理' },
+                            { week: '第3-4周', content: '数据预处理 + 特征工程', result: '数据准备' },
+                            { week: '第5-6周', content: '分类算法（逻辑回归/决策树）', result: '预测分类' },
+                            { week: '第7-8周', content: '回归算法（线性回归）', result: '数值预测' },
+                            { week: '第9-10周', content: '聚类 + 模型评估', result: '客户分群' },
+                            { week: '第11-12周', content: '实战项目（流失预测）', result: '完整项目' }
+                          ].map((item, idx) => (
+                            <div key={idx} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                              <div className={`text-sm font-bold mb-1 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{item.week}</div>
+                              <div className={`text-xs mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{item.content}</div>
+                              <div className={`text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>→ {item.result}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 核心库 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🛠️ Python核心库
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[
+                            { lib: 'scikit-learn', purpose: '机器学习算法', importance: '⭐⭐⭐⭐⭐', use: '分类/回归/聚类' },
+                            { lib: 'pandas', purpose: '数据处理', importance: '⭐⭐⭐⭐⭐', use: '数据清洗/特征工程' },
+                            { lib: 'numpy', purpose: '数值计算', importance: '⭐⭐⭐⭐⭐', use: '矩阵运算' },
+                            { lib: 'matplotlib/seaborn', purpose: '数据可视化', importance: '⭐⭐⭐⭐', use: '结果展示' }
+                          ].map((item, idx) => (
+                            <div key={idx} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                              <div className="flex items-center justify-between mb-2">
+                                <code className={`text-sm font-bold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{item.lib}</code>
+                                <span className="text-xs">{item.importance}</span>
+                              </div>
+                              <p className={`text-xs mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{item.purpose}</p>
+                              <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>用途：{item.use}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-indigo-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 02: EDA数据探索性分析 */}
+              <section id="eda">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">🔍 02. EDA数据探索性分析</h2>
+                    </div>
+                    <p className="text-indigo-50 ml-7">建模前必做！80%的时间在EDA，理解数据是成功的关键</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* EDA核心流程 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gradient-to-r from-indigo-900/30 to-purple-900/30' : 'bg-gradient-to-r from-indigo-50 to-purple-50'} border ${theme === 'dark' ? 'border-indigo-700' : 'border-indigo-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-700'}`}>📋 EDA标准流程（建模前必做）</h4>
+                        <div className="grid grid-cols-5 gap-3 text-center">
+                          {[
+                            { step: '1', title: '基本信息', icon: '📊' },
+                            { step: '2', title: '分布分析', icon: '📈' },
+                            { step: '3', title: '相关性分析', icon: '🔗' },
+                            { step: '4', title: '缺失/异常', icon: '⚠️' },
+                            { step: '5', title: '特征洞察', icon: '💡' }
+                          ].map((item, idx) => (
+                            <div key={idx} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                              <div className="text-2xl mb-1">{item.icon}</div>
+                              <div className={`text-xs font-bold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>STEP {item.step}</div>
+                              <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{item.title}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 基本信息探索 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-indigo-400' : 'text-indigo-600'}`}>📊 STEP 1: 数据基本信息 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs overflow-x-auto p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'} border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+{`import pandas as pd
+import numpy as np
+
+# 1. 查看数据概览
+print("数据形状:", df.shape)  # (行数, 列数)
+print("\\n前5行:\\n", df.head())
+print("\\n后5行:\\n", df.tail())
+
+# 2. 数据类型和内存使用
+print("\\n数据信息:")
+df.info()
+
+# 3. 数值列统计描述
+print("\\n统计描述:")
+print(df.describe())
+
+# 4. 类别列分布
+print("\\n类别列分布:")
+for col in df.select_dtypes(include='object').columns:
+    print(f"\\n{col}:")
+    print(df[col].value_counts())
+
+# 5. 缺失值统计
+print("\\n缺失值:")
+missing = df.isnull().sum()
+missing_pct = (missing / len(df)) * 100
+missing_df = pd.DataFrame({
+    'Missing_Count': missing,
+    'Missing_Percentage': missing_pct
+}).sort_values('Missing_Count', ascending=False)
+print(missing_df[missing_df['Missing_Count'] > 0])`}
+                        </pre>
+                      </div>
+
+                      {/* 分布分析 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📈 STEP 2: 数据分布分析 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 设置样式
+sns.set_style("whitegrid")
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+
+# 1. 数值型变量分布（直方图+核密度）
+numeric_cols = df.select_dtypes(include=[np.number]).columns
+n_cols = 3
+n_rows = (len(numeric_cols) + n_cols - 1) // n_cols
+
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, n_rows*4))
+axes = axes.flatten()
+
+for idx, col in enumerate(numeric_cols):
+    df[col].hist(bins=30, ax=axes[idx], alpha=0.7, edgecolor='black')
+    axes[idx].set_title(f'{col} 分布', fontsize=12)
+    axes[idx].set_ylabel('频数')
+    
+    # 添加统计信息
+    mean_val = df[col].mean()
+    median_val = df[col].median()
+    axes[idx].axvline(mean_val, color='r', linestyle='--', label=f'均值: {mean_val:.2f}')
+    axes[idx].axvline(median_val, color='g', linestyle='--', label=f'中位数: {median_val:.2f}')
+    axes[idx].legend()
+
+plt.tight_layout()
+plt.show()
+
+# 2. 箱线图（识别异常值）
+fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, n_rows*4))
+axes = axes.flatten()
+
+for idx, col in enumerate(numeric_cols):
+    df.boxplot(column=col, ax=axes[idx])
+    axes[idx].set_title(f'{col} 箱线图', fontsize=12)
+    
+    # 标注异常值数量
+    Q1 = df[col].quantile(0.25)
+    Q3 = df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    outliers = df[(df[col] < Q1 - 1.5*IQR) | (df[col] > Q3 + 1.5*IQR)]
+    axes[idx].text(0.5, 0.95, f'异常值: {len(outliers)}', 
+                   transform=axes[idx].transAxes, ha='center')
+
+plt.tight_layout()
+plt.show()
+
+# 3. 偏度和峰度分析
+skewness = df[numeric_cols].skew()
+kurtosis = df[numeric_cols].kurt()
+print("\\n偏度（Skewness）：")
+print(skewness)
+print("\\n峰度（Kurtosis）：")
+print(kurtosis)`}
+                          </pre>
+                        </div>
+                      </div>
+
+                      {/* 相关性分析 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🔗 STEP 3: 相关性分析 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`# 1. 相关系数矩阵
+correlation_matrix = df[numeric_cols].corr()
+
+# 2. 热力图可视化
+plt.figure(figsize=(12, 10))
+sns.heatmap(correlation_matrix, 
+            annot=True,  # 显示数值
+            fmt='.2f',   # 保留2位小数
+            cmap='coolwarm',  # 颜色映射
+            center=0,    # 中心值
+            square=True,
+            linewidths=0.5,
+            cbar_kws={"shrink": 0.8})
+plt.title('特征相关性热力图', fontsize=16, pad=20)
+plt.tight_layout()
+plt.show()
+
+# 3. 找出高相关性特征对（多重共线性风险）
+high_corr_pairs = []
+for i in range(len(correlation_matrix.columns)):
+    for j in range(i+1, len(correlation_matrix.columns)):
+        if abs(correlation_matrix.iloc[i, j]) > 0.8:
+            high_corr_pairs.append((
+                correlation_matrix.columns[i],
+                correlation_matrix.columns[j],
+                correlation_matrix.iloc[i, j]
+            ))
+
+print("\\n高相关性特征对（|r| > 0.8）：")
+for pair in high_corr_pairs:
+    print(f"{pair[0]} <-> {pair[1]}: {pair[2]:.3f}")
+
+# 4. 特征与目标变量的相关性
+if 'target' in df.columns:
+    target_corr = df[numeric_cols].corrwith(df['target']).sort_values(ascending=False)
+    print("\\n与目标变量的相关性：")
+    print(target_corr)
+    
+    # 可视化
+    plt.figure(figsize=(10, 6))
+    target_corr.drop('target').plot(kind='barh')
+    plt.xlabel('相关系数')
+    plt.title('特征与目标变量的相关性')
+    plt.tight_layout()
+    plt.show()`}
+                          </pre>
+                        </div>
+                      </div>
+
+                      {/* 自动化EDA工具 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🚀 自动化EDA工具 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                            <p className={`font-bold mb-2 ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>ydata-profiling（原pandas-profiling）</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`# 安装
+pip install ydata-profiling
+
+# 使用
+from ydata_profiling import ProfileReport
+
+profile = ProfileReport(
+    df, 
+    title="数据探索报告",
+    explorative=True
+)
+profile.to_file("eda_report.html")`}
+                            </pre>
+                            <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              ✓ 一键生成HTML报告 | ✓ 包含所有统计信息 | ✓ 交互式图表
+                            </p>
+                          </div>
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20 border border-orange-700' : 'bg-orange-50 border border-orange-200'}`}>
+                            <p className={`font-bold mb-2 ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'}`}>Sweetviz</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`# 安装
+pip install sweetviz
+
+# 使用
+import sweetviz as sv
+
+report = sv.analyze(df)
+report.show_html("sweetviz_report.html")
+
+# 对比分析
+report = sv.compare([train_df, "Train"], 
+                    [test_df, "Test"])
+report.show_html()`}
+                            </pre>
+                            <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              ✓ 美观的可视化 | ✓ 数据集对比 | ✓ 目标分析
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 实战案例 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-rose-900/20 border border-rose-700' : 'bg-rose-50 border border-rose-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-rose-300' : 'text-rose-700'}`}>💼 实战案例：电商用户行为EDA</h4>
+                        <div className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <p><strong>业务背景：</strong>分析10万用户行为数据，为流失预测建模做准备</p>
+                          <p><strong>发现1：</strong>购买金额呈长尾分布，80%用户<1000元，需要对数转换</p>
+                          <p><strong>发现2：</strong>浏览次数与购买频率相关性0.65，可作为核心特征</p>
+                          <p><strong>发现3：</strong>15%用户有缺失值，集中在"会员等级"字段</p>
+                          <p><strong>发现4：</strong>存在237个异常订单（金额>10万），需单独处理</p>
+                          <p><strong>结论：</strong>EDA发现的问题直接影响建模策略，必须重视！</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-green-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-green-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 03: 数据预处理 */}
+              <section id="data-preprocessing">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">🧹 02. 数据预处理</h2>
+                    </div>
+                    <p className="text-green-50 ml-7">数据质量决定模型效果，掌握数据清洗的黄金法则</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* 缺失值处理 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          ❓ 缺失值处理 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[
+                            { method: '删除法', when: '缺失<5%', code: 'df.dropna()', pros: '简单直接', cons: '可能丢失信息' },
+                            { method: '均值/中位数填充', when: '数值型', code: 'df.fillna(df.mean())', pros: '保留数据量', cons: '可能扭曲分布' },
+                            { method: '众数填充', when: '分类变量', code: 'df.fillna(df.mode()[0])', pros: '适合类别', cons: '忽略变异' },
+                            { method: 'KNN填充', when: '复杂场景', code: 'KNNImputer()', pros: '精确度高', cons: '计算复杂' }
+                          ].map((item, idx) => (
+                            <div key={idx} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700/50' : 'bg-green-50'}`}>
+                              <p className={`font-bold text-sm mb-1 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{item.method}</p>
+                              <p className={`text-xs mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>场景：{item.when}</p>
+                              <code className={`text-xs block mb-1 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{item.code}</code>
+                              <p className={`text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>✓ {item.pros}</p>
+                              <p className={`text-xs ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>✗ {item.cons}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Python代码示例 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>💻 Python缺失值处理完整代码</h4>
+                        <pre className={`text-xs overflow-x-auto p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'} border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+{`import pandas as pd
+from sklearn.impute import KNNImputer
+
+# 1. 检查缺失值
+print(df.isnull().sum())
+print(f"缺失率: {df.isnull().sum() / len(df) * 100}%")
+
+# 2. 数值型：均值填充
+df['age'] = df['age'].fillna(df['age'].mean())
+
+# 3. 分类型：众数填充
+df['gender'] = df['gender'].fillna(df['gender'].mode()[0])
+
+# 4. KNN填充（高级）
+imputer = KNNImputer(n_neighbors=5)
+df[['age', 'income']] = imputer.fit_transform(df[['age', 'income']])
+
+# 5. 删除缺失过多的行/列
+df = df.dropna(thresh=len(df)*0.8, axis=1)  # 删除缺失>20%的列
+df = df.dropna()  # 删除剩余缺失行`}
+                        </pre>
+                      </div>
+
+                      {/* 异常值处理 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          ⚡ 异常值检测与处理 ⭐⭐⭐⭐
+                        </h3>
+                        <div className="space-y-3">
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                            <h5 className={`font-bold mb-2 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>方法1：IQR法（四分位距）⭐⭐⭐⭐⭐</h5>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`Q1 = df['price'].quantile(0.25)
+Q3 = df['price'].quantile(0.75)
+IQR = Q3 - Q1
+lower = Q1 - 1.5 * IQR
+upper = Q3 + 1.5 * IQR
+df = df[(df['price'] >= lower) & (df['price'] <= upper)]  # 删除异常值`}
+                            </pre>
+                          </div>
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                            <h5 className={`font-bold mb-2 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>方法2：Z-score法 ⭐⭐⭐⭐</h5>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from scipy import stats
+z_scores = np.abs(stats.zscore(df['price']))
+df = df[z_scores < 3]  # 保留Z-score < 3的数据`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 数据编码 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🔢 类别变量编码 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className={`border-b-2 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>编码方法</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>适用场景</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>代码</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>重要性</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {[
+                                { method: 'Label Encoding', use: '有序类别（低/中/高）', code: 'LabelEncoder()', importance: '⭐⭐⭐⭐' },
+                                { method: 'One-Hot Encoding', use: '无序类别（城市名）', code: 'pd.get_dummies()', importance: '⭐⭐⭐⭐⭐' },
+                                { method: 'Target Encoding', use: '高基数类别', code: 'category_encoders', importance: '⭐⭐⭐' }
+                              ].map((row, idx) => (
+                                <tr key={idx} className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                                  <td className={`py-2 px-3 font-semibold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{row.method}</td>
+                                  <td className={`py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.use}</td>
+                                  <td className={`py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}><code className="text-xs">{row.code}</code></td>
+                                  <td className={`py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.importance}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* 标准化与归一化 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20 border border-orange-700' : 'bg-orange-50 border border-orange-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'}`}>📏 标准化 vs 归一化 ⭐⭐⭐⭐⭐</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className={`font-bold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>StandardScaler（标准化）</p>
+                            <p className={`text-xs mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>公式：z = (x - μ) / σ，转为均值0方差1</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)`}
+                            </pre>
+                            <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>适用：线性回归、逻辑回归、SVM</p>
+                          </div>
+                          <div>
+                            <p className={`font-bold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>MinMaxScaler（归一化）</p>
+                            <p className={`text-xs mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>公式：x' = (x - min) / (max - min)，转为[0,1]</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+X_scaled = scaler.fit_transform(X)`}
+                            </pre>
+                            <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>适用：神经网络、KNN、图像处理</p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-orange-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-orange-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 03: 特征工程 */}
+              <section id="feature-engineering">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">⚙️ 03. 特征工程</h2>
+                    </div>
+                    <p className="text-orange-50 ml-7">特征决定模型上限，算法只是逼近上限</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* 特征选择 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🎯 特征选择（降维减噪）⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className="grid grid-cols-3 gap-4">
+                          {[
+                            { method: '方差过滤', desc: '删除方差小的特征', code: 'VarianceThreshold()', use: '去除常数特征' },
+                            { method: '相关性分析', desc: '删除高度相关特征', code: 'df.corr()', use: '避免多重共线性' },
+                            { method: 'RFE递归消除', desc: '逐步删除不重要特征', code: 'RFE(estimator)', use: '基于模型重要性' }
+                          ].map((item, idx) => (
+                            <div key={idx} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20 border border-orange-700' : 'bg-orange-50 border-orange-200'}`}>
+                              <p className={`font-bold text-sm mb-1 ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>{item.method}</p>
+                              <p className={`text-xs mb-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{item.desc}</p>
+                              <code className={`text-xs block mb-1 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{item.code}</code>
+                              <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{item.use}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 特征构造 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>🔧 特征构造实战技巧 ⭐⭐⭐⭐⭐</h4>
+                        <div className="space-y-3">
+                          <div>
+                            <p className={`font-semibold text-sm mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>1️⃣ 时间特征拆解</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`df['year'] = df['date'].dt.year
+df['month'] = df['date'].dt.month
+df['dayofweek'] = df['date'].dt.dayofweek
+df['hour'] = df['date'].dt.hour
+df['is_weekend'] = df['dayofweek'].isin([5, 6]).astype(int)
+df['is_holiday'] = df['date'].isin(holidays).astype(int)`}
+                            </pre>
+                          </div>
+                          <div>
+                            <p className={`font-semibold text-sm mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>2️⃣ 数值特征组合</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`df['BMI'] = df['weight'] / (df['height'] / 100) ** 2
+df['price_per_sqm'] = df['price'] / df['area']
+df['total_amount'] = df['quantity'] * df['unit_price']`}
+                            </pre>
+                          </div>
+                          <div>
+                            <p className={`font-semibold text-sm mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>3️⃣ 统计特征聚合</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`# 用户历史行为聚合
+user_stats = df.groupby('user_id').agg({
+    'order_amount': ['mean', 'sum', 'count', 'max', 'std'],
+    'days_since_last': ['min', 'mean']
+})`}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 特征重要性 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📊 特征重要性评估 ⭐⭐⭐⭐
+                        </h3>
+                        <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
+
+# 训练随机森林获取特征重要性
+rf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+
+# 可视化特征重要性
+feature_importance = pd.DataFrame({
+    'feature': X.columns,
+    'importance': rf.feature_importances_
+}).sort_values('importance', ascending=False)
+
+plt.barh(feature_importance['feature'][:10], feature_importance['importance'][:10])
+plt.xlabel('Importance')
+plt.title('Top 10 Feature Importance')
+plt.show()`}
+                          </pre>
+                          
+                          {/* 特征重要性可视化图表 */}
+                          <div className="mt-4">
+                            <FeatureImportanceChart theme={theme} />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 样本不均衡处理模块 */}
+              <ImbalancedDataModule theme={theme} />
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-purple-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 06: 分类算法 */}
+              <section id="classification">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">🎲 04. 分类算法</h2>
+                    </div>
+                    <p className="text-purple-50 ml-7">从用户流失到风险识别，掌握5大核心算法</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* 算法对比 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-4 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🎯 5大分类算法对比
+                        </h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className={`border-b-2 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>算法</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>优点</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>缺点</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>应用场景</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>重要性</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {[
+                                { algo: '逻辑回归', pros: '简单快速、可解释强', cons: '线性分类', use: '用户流失、信用评分', star: '⭐⭐⭐⭐⭐' },
+                                { algo: '决策树', pros: '可解释、处理非线性', cons: '易过拟合', use: '规则提取、风险评估', star: '⭐⭐⭐⭐' },
+                                { algo: '随机森林', pros: '准确率高、鲁棒性强', cons: '训练慢、黑盒', use: '特征重要性、通用分类', star: '⭐⭐⭐⭐⭐' },
+                                { algo: 'XGBoost', pros: '性能最强、竞赛首选', cons: '调参复杂', use: 'Kaggle竞赛、精准预测', star: '⭐⭐⭐⭐⭐' },
+                                { algo: 'SVM', pros: '高维数据、核技巧', cons: '大数据慢', use: '文本分类、小样本', star: '⭐⭐⭐' }
+                              ].map((row, idx) => (
+                                <tr key={idx} className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                                  <td className={`py-2 px-3 font-semibold ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>{row.algo}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{row.pros}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>{row.cons}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.use}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.star}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* 逻辑回归 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-purple-400' : 'text-purple-600'}`}>🔥 逻辑回归 - 最常用的分类算法 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs overflow-x-auto p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'} border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+{`from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix
+
+# 1. 数据准备
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 2. 训练模型
+lr = LogisticRegression(max_iter=1000, random_state=42)
+lr.fit(X_train, y_train)
+
+# 3. 预测
+y_pred = lr.predict(X_test)
+y_proba = lr.predict_proba(X_test)[:, 1]  # 获取概率
+
+# 4. 评估
+print("准确率:", lr.score(X_test, y_test))
+print(classification_report(y_test, y_pred))
+
+# 5. 特征系数（可解释性）
+coef_df = pd.DataFrame({
+    'feature': X.columns,
+    'coefficient': lr.coef_[0]
+}).sort_values('coefficient', ascending=False)
+print("\\n特征重要性:\\n", coef_df)`}
+                        </pre>
+                      </div>
+
+                      {/* 随机森林 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>🌲 随机森林 - 鲁棒性最强 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.ensemble import RandomForestClassifier
+
+# 训练随机森林
+rf = RandomForestClassifier(
+    n_estimators=100,      # 树的数量
+    max_depth=10,          # 树的最大深度
+    min_samples_split=20,  # 分裂最小样本数
+    random_state=42
+)
+rf.fit(X_train, y_train)
+
+# 预测
+y_pred = rf.predict(X_test)
+print("准确率:", rf.score(X_test, y_test))
+
+# 特征重要性
+feature_importance = pd.DataFrame({
+    'feature': X.columns,
+    'importance': rf.feature_importances_
+}).sort_values('importance', ascending=False)
+print("\\nTop 5 特征:\\n", feature_importance.head())`}
+                        </pre>
+                      </div>
+
+                      {/* XGBoost */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>🚀 XGBoost - 竞赛王者 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`import xgboost as xgb
+
+# 训练XGBoost
+xgb_model = xgb.XGBClassifier(
+    n_estimators=100,
+    learning_rate=0.1,
+    max_depth=5,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    random_state=42
+)
+xgb_model.fit(X_train, y_train)
+
+# 预测
+y_pred = xgb_model.predict(X_test)
+print("准确率:", xgb_model.score(X_test, y_test))
+
+# 特征重要性可视化
+xgb.plot_importance(xgb_model, max_num_features=10)
+plt.title('XGBoost Feature Importance')
+plt.show()`}
+                        </pre>
+                      </div>
+
+                      {/* 实战案例 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20 border border-orange-700' : 'bg-orange-50 border border-orange-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'}`}>💼 实战案例：用户流失预测</h4>
+                        <div className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <p><strong>业务场景：</strong>电商平台预测哪些用户会流失</p>
+                          <p><strong>特征：</strong>最近购买天数、购买频率、平均订单金额、会员等级、投诉次数</p>
+                          <p><strong>标签：</strong>是否流失（30天未购买=1，否则=0）</p>
+                          <p><strong>模型选择：</strong>逻辑回归（可解释） + XGBoost（高精度）</p>
+                          <p><strong>业务价值：</strong>提前识别流失用户，发放优惠券挽回，ROI提升300%</p>
+                        </div>
+                      </div>
+
+                      {/* 模型评估可视化 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📊 模型评估可视化 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                            <ConfusionMatrixChart theme={theme} />
+                            <p className={`text-xs mt-2 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              Precision = 850/(850+50) = 94.4% | Recall = 70/(70+30) = 70%
+                            </p>
+                          </div>
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                            <ROCCurveChart theme={theme} />
+                            <p className={`text-xs mt-2 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                              AUC越接近1，模型区分能力越强
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* 混淆矩阵代码 */}
+                        <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-indigo-900/20 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}>
+                          <p className={`text-sm font-bold mb-2 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-700'}`}>完整评估代码</p>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.metrics import confusion_matrix, classification_report, roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
+
+# 预测
+y_pred = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, 1]
+
+# 混淆矩阵
+cm = confusion_matrix(y_test, y_pred)
+print("混淆矩阵:\\n", cm)
+
+# 分类报告
+print("\\n分类报告:\\n", classification_report(y_test, y_pred))
+
+# ROC-AUC
+auc = roc_auc_score(y_test, y_proba)
+print(f"\\nAUC Score: {auc:.4f}")
+
+# 绘制ROC曲线
+fpr, tpr, thresholds = roc_curve(y_test, y_proba)
+plt.plot(fpr, tpr, label=f'AUC = {auc:.2f}')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('ROC Curve')
+plt.legend()
+plt.show()`}
+                          </pre>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-red-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 05: 回归算法 */}
+              <section id="regression">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-red-500 via-orange-500 to-pink-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">📈 05. 回归算法</h2>
+                    </div>
+                    <p className="text-red-50 ml-7">从销售预测到价格估算，预测连续数值的利器</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* 线性回归 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>📏 线性回归 - 最基础最常用 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs overflow-x-auto p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'} border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+{`from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
+
+# 训练线性回归
+lr = LinearRegression()
+lr.fit(X_train, y_train)
+
+# 预测
+y_pred = lr.predict(X_test)
+
+# 评估
+print("R² 得分:", r2_score(y_test, y_pred))
+print("MSE:", mean_squared_error(y_test, y_pred))
+print("RMSE:", np.sqrt(mean_squared_error(y_test, y_pred)))
+
+# 查看系数
+coef_df = pd.DataFrame({
+    'feature': X.columns,
+    'coefficient': lr.coef_
+}).sort_values('coefficient', key=abs, ascending=False)
+print("\\n特征系数:\\n", coef_df)`}
+                        </pre>
+                      </div>
+
+                      {/* 岭回归和Lasso */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🎯 正则化回归：岭回归 vs Lasso ⭐⭐⭐⭐
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                            <p className={`font-bold mb-2 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>岭回归（Ridge）- L2正则化</p>
+                            <p className={`text-xs mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>惩罚系数平方和，系数趋近0但不为0</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.linear_model import Ridge
+ridge = Ridge(alpha=1.0)
+ridge.fit(X_train, y_train)
+print("R²:", ridge.score(X_test, y_test))`}
+                            </pre>
+                            <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>✓ 防止过拟合 | ✓ 特征多重共线性</p>
+                          </div>
+                          <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                            <p className={`font-bold mb-2 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>Lasso - L1正则化</p>
+                            <p className={`text-xs mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>惩罚系数绝对值，可将系数压缩为0</p>
+                            <pre className={`text-xs p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.linear_model import Lasso
+lasso = Lasso(alpha=0.1)
+lasso.fit(X_train, y_train)
+print("R²:", lasso.score(X_test, y_test))`}
+                            </pre>
+                            <p className={`text-xs mt-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>✓ 特征选择 | ✓ 稀疏模型</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 实战案例 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20 border border-orange-700' : 'bg-orange-50 border border-orange-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'}`}>💼 实战案例：销售额预测</h4>
+                        <div className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <p><strong>业务场景：</strong>根据历史数据预测未来3个月销售额</p>
+                          <p><strong>特征：</strong>促销力度、季节性、历史销量、竞品价格、广告投入</p>
+                          <p><strong>目标：</strong>销售额（连续值）</p>
+                          <p><strong>模型选择：</strong>线性回归（基线） + XGBoost（最终）</p>
+                          <p><strong>评估指标：</strong>RMSE、MAE、R²</p>
+                          <p><strong>业务价值：</strong>准确预测帮助备货，减少库存积压30%</p>
+                        </div>
+                      </div>
+
+                      {/* 回归模型可视化 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📊 回归模型效果可视化 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                          <RegressionScatterChart theme={theme} />
+                          <p className={`text-xs mt-2 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                            点越接近对角线，预测越准确。R²=0.85表示模型解释了85%的方差
+                          </p>
+                        </div>
+
+                        {/* 完整回归代码示例 */}
+                        <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                          <p className={`text-sm font-bold mb-2 ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>完整回归建模流程</p>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 训练模型
+lr = LinearRegression()
+lr.fit(X_train, y_train)
+
+# 预测
+y_pred = lr.predict(X_test)
+
+# 评估
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred)
+
+print(f"MAE: {mae:.2f}")
+print(f"RMSE: {rmse:.2f}")
+print(f"R²: {r2:.4f}")
+
+# 预测 vs 实际散点图
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, y_pred, alpha=0.5)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
+plt.title(f'Prediction vs Actual (R² = {r2:.2f})')
+plt.show()
+
+# 残差图
+residuals = y_test - y_pred
+plt.figure(figsize=(10, 6))
+plt.scatter(y_pred, residuals, alpha=0.5)
+plt.axhline(y=0, color='r', linestyle='--')
+plt.xlabel('Predicted Values')
+plt.ylabel('Residuals')
+plt.title('Residual Plot')
+plt.show()`}
+                          </pre>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-cyan-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 06: 聚类算法 */}
+              <section id="clustering">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">🔮 06. 聚类算法</h2>
+                    </div>
+                    <p className="text-cyan-50 ml-7">无监督学习，自动发现数据中的隐藏模式</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* K-means */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>🎯 K-means - 最经典的聚类算法 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs overflow-x-auto p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'} border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+{`from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+# 肘部法则确定最优K值
+inertias = []
+for k in range(1, 11):
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)
+    inertias.append(kmeans.inertia_)
+
+plt.plot(range(1, 11), inertias, marker='o')
+plt.xlabel('Number of clusters')
+plt.ylabel('Inertia')
+plt.title('Elbow Method')
+plt.show()
+
+# 训练K-means
+kmeans = KMeans(n_clusters=3, random_state=42)
+clusters = kmeans.fit_predict(X)
+
+# 添加聚类标签
+df['cluster'] = clusters
+
+# 分析每个聚类
+for i in range(3):
+    print(f"\\nCluster {i}:")
+    print(df[df['cluster'] == i].describe())`}
+                        </pre>
+                      </div>
+
+                      {/* 算法对比 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📊 3大聚类算法对比
+                        </h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className={`border-b-2 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>算法</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>原理</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>优点</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>缺点</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>重要性</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {[
+                                { algo: 'K-means', principle: '距离最近中心点', pros: '简单快速', cons: '需指定K值', star: '⭐⭐⭐⭐⭐' },
+                                { algo: 'DBSCAN', principle: '密度聚类', pros: '自动发现簇数', cons: '参数敏感', star: '⭐⭐⭐⭐' },
+                                { algo: '层次聚类', principle: '树状结构', pros: '可视化树状图', cons: '计算复杂', star: '⭐⭐⭐' }
+                              ].map((row, idx) => (
+                                <tr key={idx} className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                                  <td className={`py-2 px-3 font-semibold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>{row.algo}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.principle}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{row.pros}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-red-400' : 'text-red-600'}`}>{row.cons}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.star}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* RFM客户分群实战 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>💼 实战案例：RFM客户分群</h4>
+                        <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`# 计算RFM特征
+from datetime import datetime
+reference_date = df['order_date'].max()
+
+rfm = df.groupby('user_id').agg({
+    'order_date': lambda x: (reference_date - x.max()).days,  # R
+    'order_id': 'count',                                       # F
+    'amount': 'sum'                                            # M
+}).rename(columns={
+    'order_date': 'recency',
+    'order_id': 'frequency',
+    'amount': 'monetary'
+})
+
+# 标准化
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+rfm_scaled = scaler.fit_transform(rfm)
+
+# K-means聚类
+kmeans = KMeans(n_clusters=4, random_state=42)
+rfm['cluster'] = kmeans.fit_predict(rfm_scaled)
+
+# 分析客户群
+print(rfm.groupby('cluster').mean())
+# Cluster 0: 高价值客户（低R、高F、高M）
+# Cluster 1: 流失客户（高R、低F、低M）
+# Cluster 2: 潜力客户（低R、中F、中M）
+# Cluster 3: 普通客户（中R、中F、中M）`}
+                        </pre>
+                      </div>
+
+                      {/* 聚类可视化 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📊 聚类结果可视化 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                          <ClusteringVisualization theme={theme} />
+                          <p className={`text-xs mt-2 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                            不同颜色代表不同聚类，⭐表示聚类中心
+                          </p>
+                        </div>
+
+                        {/* 聚类评估指标 */}
+                        <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                          <p className={`text-sm font-bold mb-2 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>聚类效果评估</p>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.metrics import silhouette_score, davies_bouldin_score, calinski_harabasz_score
+
+# 轮廓系数（-1到1，越接近1越好）
+silhouette = silhouette_score(X, labels)
+print(f"Silhouette Score: {silhouette:.3f}")
+
+# Davies-Bouldin指数（越小越好）
+db_index = davies_bouldin_score(X, labels)
+print(f"Davies-Bouldin Index: {db_index:.3f}")
+
+# Calinski-Harabasz指数（越大越好）
+ch_score = calinski_harabasz_score(X, labels)
+print(f"Calinski-Harabasz Score: {ch_score:.2f}")
+
+# 可视化聚类结果
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+
+# PCA降维到2D
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X)
+
+plt.figure(figsize=(10, 6))
+scatter = plt.scatter(X_pca[:, 0], X_pca[:, 1], c=labels, cmap='viridis', alpha=0.6)
+plt.colorbar(scatter, label='Cluster')
+plt.xlabel('PCA Component 1')
+plt.ylabel('PCA Component 2')
+plt.title('K-means Clustering Results (PCA)')
+plt.show()`}
+                          </pre>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 时间序列预测模块 */}
+              <TimeSeriesModule theme={theme} />
+
+              {/* 异常检测模块 */}
+              <AnomalyDetectionModule theme={theme} />
+
+              {/* 降维与可视化模块 */}
+              <DimensionalityReductionModule theme={theme} />
+
+              {/* 集成学习深度解析模块 */}
+              <EnsembleLearningModule theme={theme} />
+
+              {/* 模型解释性模块 */}
+              <ModelInterpretabilityModule theme={theme} />
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-green-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-green-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 14: 模型评估与调优 */}
+              <section id="model-evaluation">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">📊 07. 模型评估与调优</h2>
+                    </div>
+                    <p className="text-green-50 ml-7">从基础评估到高级调优，打造高性能模型</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-6">
+                      {/* 评估指标 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          🎯 分类模型评估指标 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className={`border-b-2 ${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>指标</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>公式</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>适用场景</th>
+                                <th className={`text-left py-2 px-3 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>代码</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {[
+                                { metric: 'Accuracy', formula: '正确预测数 / 总数', use: '样本均衡', code: 'accuracy_score(y_true, y_pred)' },
+                                { metric: 'Precision', formula: 'TP / (TP + FP)', use: '减少误报', code: 'precision_score(y_true, y_pred)' },
+                                { metric: 'Recall', formula: 'TP / (TP + FN)', use: '减少漏报', code: 'recall_score(y_true, y_pred)' },
+                                { metric: 'F1-Score', formula: '2 * P * R / (P + R)', use: '平衡P和R', code: 'f1_score(y_true, y_pred)' },
+                                { metric: 'AUC-ROC', formula: 'ROC曲线下面积', use: '样本不均衡', code: 'roc_auc_score(y_true, y_proba)' }
+                              ].map((row, idx) => (
+                                <tr key={idx} className={`border-b ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                                  <td className={`py-2 px-3 font-semibold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{row.metric}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{row.formula}</td>
+                                  <td className={`py-2 px-3 text-xs ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{row.use}</td>
+                                  <td className={`py-2 px-3 text-xs font-mono ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>{row.code}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* 交叉验证 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>🔄 交叉验证 - 更可靠的评估 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs overflow-x-auto p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'} border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+{`from sklearn.model_selection import cross_val_score, KFold
+
+# K折交叉验证
+kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(model, X, y, cv=kfold, scoring='accuracy')
+
+print(f"5折交叉验证得分: {scores}")
+print(f"平均准确率: {scores.mean():.4f} (+/- {scores.std():.4f})")
+
+# 多指标评估
+from sklearn.model_selection import cross_validate
+scoring = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']
+results = cross_validate(model, X, y, cv=5, scoring=scoring)
+
+for metric in scoring:
+    print(f"{metric}: {results[f'test_{metric}'].mean():.4f}")`}
+                        </pre>
+                      </div>
+
+                      {/* 网格搜索 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>🔧 网格搜索 - 自动调参 ⭐⭐⭐⭐⭐</h4>
+                        <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.model_selection import GridSearchCV
+from sklearn.ensemble import RandomForestClassifier
+
+# 定义参数网格
+param_grid = {
+    'n_estimators': [50, 100, 200],
+    'max_depth': [5, 10, 15, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+# 网格搜索
+rf = RandomForestClassifier(random_state=42)
+grid_search = GridSearchCV(
+    rf, param_grid, cv=5, 
+    scoring='f1', n_jobs=-1, verbose=1
+)
+grid_search.fit(X_train, y_train)
+
+# 最佳参数和得分
+print("最佳参数:", grid_search.best_params_)
+print("最佳得分:", grid_search.best_score_)
+best_model = grid_search.best_estimator_`}
+                        </pre>
+                      </div>
+
+                      {/* 回归评估指标 */}
+                      <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                        <h4 className={`font-bold mb-3 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>📈 回归模型评估指标 ⭐⭐⭐⭐</h4>
+                        <div className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <p>• <strong>MAE (平均绝对误差)：</strong>预测值与真实值差的绝对值平均 → 对异常值不敏感</p>
+                          <p>• <strong>MSE (均方误差)：</strong>差值的平方平均 → 惩罚大误差</p>
+                          <p>• <strong>RMSE (均方根误差)：</strong>MSE的平方根 → 与原数据同单位</p>
+                          <p>• <strong>R² (决定系数)：</strong>0-1之间，越接近1越好 → 衡量拟合优度</p>
+                        </div>
+                        <pre className={`text-xs mt-3 p-2 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import numpy as np
+
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = r2_score(y_test, y_pred)
+print(f"MAE: {mae:.2f}, RMSE: {rmse:.2f}, R²: {r2:.4f}")`}
+                        </pre>
+                      </div>
+
+                      {/* 学习曲线可视化 */}
+                      <div>
+                        <h3 className={`text-lg font-bold mb-3 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+                          📈 学习曲线分析 ⭐⭐⭐⭐⭐
+                        </h3>
+                        <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                          <LearningCurveChart theme={theme} />
+                          <p className={`text-xs mt-2 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                            训练集与验证集得分趋于收敛，说明模型不过拟合也不欠拟合
+                          </p>
+                        </div>
+
+                        {/* 学习曲线代码 */}
+                        <div className={`mt-4 p-4 rounded-lg ${theme === 'dark' ? 'bg-orange-900/20 border border-orange-700' : 'bg-orange-50 border border-orange-200'}`}>
+                          <p className={`text-sm font-bold mb-2 ${theme === 'dark' ? 'text-orange-300' : 'text-orange-700'}`}>学习曲线绘制</p>
+                          <pre className={`text-xs p-3 rounded ${theme === 'dark' ? 'bg-black text-green-400' : 'bg-white text-gray-800'}`}>
+{`from sklearn.model_selection import learning_curve
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 计算学习曲线
+train_sizes, train_scores, val_scores = learning_curve(
+    model, X, y, 
+    train_sizes=np.linspace(0.1, 1.0, 10),
+    cv=5, 
+    scoring='accuracy',
+    n_jobs=-1
+)
+
+# 计算均值和标准差
+train_mean = np.mean(train_scores, axis=1)
+train_std = np.std(train_scores, axis=1)
+val_mean = np.mean(val_scores, axis=1)
+val_std = np.std(val_scores, axis=1)
+
+# 绘制学习曲线
+plt.figure(figsize=(10, 6))
+plt.plot(train_sizes, train_mean, label='Training score', marker='o')
+plt.plot(train_sizes, val_mean, label='Validation score', marker='s')
+plt.fill_between(train_sizes, train_mean - train_std, train_mean + train_std, alpha=0.15)
+plt.fill_between(train_sizes, val_mean - val_std, val_mean + val_std, alpha=0.15)
+plt.xlabel('Training Set Size')
+plt.ylabel('Accuracy Score')
+plt.title('Learning Curve')
+plt.legend(loc='lower right')
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# 分析结论
+if val_mean[-1] < 0.7:
+    print("⚠️ 模型欠拟合，建议：增加特征复杂度、减少正则化")
+elif train_mean[-1] - val_mean[-1] > 0.1:
+    print("⚠️ 模型过拟合，建议：增加数据量、增强正则化、简化模型")
+else:
+    print("✓ 模型拟合良好")`}
+                          </pre>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 模型部署与监控模块 */}
+              <ModelDeploymentModule theme={theme} />
+
+              {/* 模块分隔符 */}
+              <div className="relative flex items-center justify-center py-4">
+                <div className={`absolute inset-0 flex items-center ${theme === 'dark' ? 'opacity-20' : 'opacity-30'}`}>
+                  <div className="w-full h-px bg-gradient-to-r from-transparent via-rose-500 to-transparent"></div>
+                </div>
+                <div className="relative px-4 text-rose-500 font-bold">◆ ◆ ◆</div>
+              </div>
+
+              {/* MODULE 16: 实战案例库 */}
+              <section id="case-studies">
+                <div className="relative overflow-hidden rounded-xl p-6 mb-6 bg-gradient-to-r from-rose-500 via-pink-500 to-fuchsia-500 shadow-lg">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-1 h-8 bg-white rounded-full"></div>
+                      <h2 className="text-2xl font-bold text-white">💼 08. 实战案例库</h2>
+                    </div>
+                    <p className="text-rose-50 ml-7">3大典型业务场景，完整建模流程</p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* 案例1：用户流失预测 */}
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-4">
+                      <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-rose-400' : 'text-rose-600'}`}>
+                        📱 案例1：电商用户流失预测 ⭐⭐⭐⭐⭐
+                      </h3>
+                      
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>业务背景</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                          电商平台月活1000万，但30天未购买用户占40%，需预测流失用户并精准挽回
+                        </p>
+                      </div>
+
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-blue-900/20 border border-blue-700' : 'bg-blue-50 border border-blue-200'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>建模步骤</p>
+                        <ol className={`text-xs space-y-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <li>1. <strong>特征工程：</strong>RFM（最近购买天数、购买频率、累计金额）+ 行为特征（浏览、收藏、加购）</li>
+                          <li>2. <strong>标签定义：</strong>30天未购买=1（流失），否则=0（活跃）</li>
+                          <li>3. <strong>样本不均衡处理：</strong>SMOTE过采样 或 调整class_weight</li>
+                          <li>4. <strong>模型选择：</strong>逻辑回归（可解释） + XGBoost（高精度）</li>
+                          <li>5. <strong>评估指标：</strong>Recall优先（不能漏掉流失用户），F1-Score平衡</li>
+                          <li>6. <strong>业务落地：</strong>预测概率Top20%用户，发放优惠券挽回</li>
+                        </ol>
+                      </div>
+
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>业务价值</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          ✓ 模型Recall=0.78，挽回70%流失用户 | ✓ 优惠券ROI=3.5（每投入1元带来3.5元GMV） | ✓ 月度挽回用户10万+
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* 案例2：销售额预测 */}
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-4">
+                      <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-orange-400' : 'text-orange-600'}`}>
+                        📦 案例2：商品销售额预测 ⭐⭐⭐⭐
+                      </h3>
+                      
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>业务背景</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                          零售企业需预测未来3个月各商品销售额，优化备货计划，减少库存积压
+                        </p>
+                      </div>
+
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-purple-900/20 border border-purple-700' : 'bg-purple-50 border border-purple-200'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-purple-300' : 'text-purple-700'}`}>特征工程亮点</p>
+                        <ul className={`text-xs space-y-1 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          <li>• <strong>时间特征：</strong>年、月、周、是否节假日、是否促销季</li>
+                          <li>• <strong>滞后特征：</strong>过去7天/30天/90天销量均值</li>
+                          <li>• <strong>滚动特征：</strong>7天移动平均、30天指数平滑</li>
+                          <li>• <strong>促销特征：</strong>促销力度、促销天数、历史促销效果</li>
+                        </ul>
+                      </div>
+
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>模型效果</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          ✓ RMSE=1200（销售额单位：元） | ✓ R²=0.85 | ✓ 库存积压率从25%降至10% | ✓ 年节省库存成本500万+
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* 案例3：客户分群 */}
+                  <Card className={theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white'}>
+                    <CardContent className="pt-6 space-y-4">
+                      <h3 className={`text-lg font-bold ${theme === 'dark' ? 'text-cyan-400' : 'text-cyan-600'}`}>
+                        👥 案例3：RFM客户精细化运营 ⭐⭐⭐⭐⭐
+                      </h3>
+                      
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>业务背景</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                          用户量大但运营策略粗放，需根据用户价值和活跃度分群，制定差异化运营策略
+                        </p>
+                      </div>
+
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-indigo-900/20 border border-indigo-700' : 'bg-indigo-50 border border-indigo-200'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-indigo-300' : 'text-indigo-700'}`}>4类客户群运营策略</p>
+                        <div className="grid grid-cols-2 gap-3 mt-2">
+                          {[
+                            { group: '高价值客户', desc: '低R、高F、高M', strategy: 'VIP专属服务、生日礼包', color: theme === 'dark' ? 'bg-red-900/30' : 'bg-red-100' },
+                            { group: '流失预警客户', desc: '高R、低F、低M', strategy: '大额优惠券、召回活动', color: theme === 'dark' ? 'bg-orange-900/30' : 'bg-orange-100' },
+                            { group: '潜力客户', desc: '低R、中F、中M', strategy: '会员升级引导、推荐高单价商品', color: theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-100' },
+                            { group: '普通客户', desc: '中R、中F、中M', strategy: '常规营销、提升复购', color: theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200' }
+                          ].map((item, idx) => (
+                            <div key={idx} className={`p-2 rounded ${item.color}`}>
+                              <p className={`text-xs font-bold mb-1 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>{item.group}</p>
+                              <p className={`text-xs mb-1 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{item.desc}</p>
+                              <p className={`text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-700'}`}>策略：{item.strategy}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-green-900/20 border border-green-700' : 'bg-green-50 border border-green-200'}`}>
+                        <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-green-300' : 'text-green-700'}`}>业务价值</p>
+                        <p className={`text-xs ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+                          ✓ 高价值客户留存率提升15% | ✓ 流失用户召回率提升40% | ✓ 整体ARPU提升20% | ✓ 营销ROI提升2.8倍
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </section>
+
+              {/* 页面底部完成标记 */}
+              <div className={`mt-12 p-6 rounded-xl ${theme === 'dark' ? 'bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700' : 'bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200'}`}>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${theme === 'dark' ? 'bg-blue-500' : 'bg-blue-600'}`}>
+                    <Brain className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className={`text-xl font-bold ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>
+                      ✅ 机器学习完整知识体系已完成
+                    </h3>
+                    <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                      16大核心模块 + 完整Python代码 + 实战案例，数据分析师ML完整知识体系！
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  {[
+                    { module: '01 ML入门', content: '3大类型+12周路径', icon: '🚀' },
+                    { module: '02 EDA探索', content: '5步流程+自动化工具', icon: '🔍' },
+                    { module: '03 数据预处理', content: '缺失值+异常值+编码', icon: '🧹' },
+                    { module: '04 特征工程', content: '选择+构造+评估', icon: '⚙️' },
+                    { module: '05 样本不均衡', content: 'SMOTE+class_weight', icon: '⚖️' },
+                    { module: '06 分类算法', content: '逻辑回归+RF+XGBoost', icon: '🎲' },
+                    { module: '07 回归算法', content: '线性+岭+Lasso', icon: '📈' },
+                    { module: '08 聚类算法', content: 'K-means+RFM分群', icon: '🔮' },
+                    { module: '09 时间序列', content: 'Prophet+ARIMA+LSTM', icon: '📉' },
+                    { module: '10 异常检测', content: 'IsolationForest+LOF', icon: '🚨' },
+                    { module: '11 降维可视化', content: 'PCA+t-SNE+UMAP', icon: '📐' },
+                    { module: '12 集成学习', content: 'LightGBM+CatBoost', icon: '🎯' },
+                    { module: '13 模型解释', content: 'SHAP+LIME+PDP', icon: '💡' },
+                    { module: '14 评估调优', content: '交叉验证+网格搜索', icon: '📊' },
+                    { module: '15 模型部署', content: 'FastAPI+监控', icon: '🚀' },
+                    { module: '16 实战案例', content: '流失+预测+分群', icon: '💼' }
+                  ].map((item, idx) => (
+                    <div key={idx} className={`p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'}`}>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xl">{item.icon}</span>
+                        <div className={`text-sm font-bold ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>{item.module}</div>
+                      </div>
+                      <div className={`text-xs ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>{item.content}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-blue-900/30' : 'bg-blue-100'}`}>
+                  <p className={`text-sm font-semibold mb-2 ${theme === 'dark' ? 'text-blue-300' : 'text-blue-700'}`}>
+                    🎯 数据分析师ML能力模型（已达成）
+                  </p>
+                  <div className="grid grid-cols-3 gap-3 text-xs">
+                    {[
+                      { skill: 'Python编程', level: '✓ 熟练', desc: 'Pandas/NumPy/Scikit-learn' },
+                      { skill: '数据预处理', level: '✓ 精通', desc: '缺失值/异常值/特征工程' },
+                      { skill: '监督学习', level: '✓ 精通', desc: '分类/回归/5+算法' },
+                      { skill: '无监督学习', level: '✓ 掌握', desc: '聚类/RFM分群' },
+                      { skill: '模型调优', level: '✓ 精通', desc: '交叉验证/网格搜索' },
+                      { skill: '业务落地', level: '✓ 精通', desc: '流失预测/销售预测/客户分群' }
+                    ].map((item, idx) => (
+                      <div key={idx} className={`p-2 rounded ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`}>
+                        <p className={`font-bold mb-1 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>{item.skill}</p>
+                        <p className={`mb-1 ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>{item.level}</p>
+                        <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      {/* 返回顶部按钮 */}
+      {showScrollTop && (
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className={`fixed bottom-8 right-8 p-3 rounded-full shadow-lg transition-all hover:scale-110 ${theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-white hover:bg-gray-100 text-gray-900 border border-gray-200'}`}
+          aria-label="返回顶部"
+        >
+          <ChevronUp size={24} />
+        </button>
+      )}
+    </div>
+  )
+}
+
